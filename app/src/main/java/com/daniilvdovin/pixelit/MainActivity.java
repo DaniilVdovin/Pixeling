@@ -1,8 +1,8 @@
 package com.daniilvdovin.pixelit;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,11 +14,11 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
@@ -26,34 +26,53 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
+    //System
     private static final int RESULT_LOAD_IMG = 1;
     Bitmap image;
 
+    //UI
     ImageView imageView;
-    Button button;
+    Button reset,save;
+    //UI-Parameters
+    Switch s_grid,s_gray,s_dot;
+    //UI-Text
+    TextView t_pixelSize,t_imageSize,t_pixelRate;
 
-    int ScaleSize = 30;
+    //Parameters
+    boolean _isDots = false;
+    boolean _isGrid = false;
+    boolean _isGray = false;
+    int ScaleSize = 50; //30
+    int PixelRate = 48; //48
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        imageView = findViewById(R.id.imageView);
-        button = findViewById(R.id.button);
-
+        //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
 
-        button.setOnClickListener(view -> {
+        //Init UI
+        imageView = findViewById(R.id.imageView);
+        reset = findViewById(R.id.b_reset);
+
+        //Image Load
+        imageView.setOnClickListener(view->{
+            startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+        });
+
+        //Pixelating
+        reset.setOnClickListener(view -> {
             imageView.setImageBitmap(pixelit_b(image));
         });
+
+
     }
     @Override
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        Log.e("RCode",""+resultCode);
         if (resultCode == RESULT_OK) {
             try {
                 final Uri imageUri = data.getData();
@@ -70,38 +89,38 @@ public class MainActivity extends AppCompatActivity {
     }
     Bitmap pixelit_b(Bitmap bitmap){
         //x30
-
-
-        bitmap = Bitmap.createScaledBitmap(bitmap,48,48,false);
-        bitmap = Bitmap.createScaledBitmap(bitmap,(48*ScaleSize)+1,(48*ScaleSize)+1,false);
-
-        Bitmap map = Bitmap.createBitmap((48*ScaleSize)+1,(48*ScaleSize)+1,Bitmap.Config.ARGB_4444);
-
-        int[] pixels = new int[bitmap.getHeight()*bitmap.getWidth()];
-        for (int i = 0; i < bitmap.getWidth(); i++) {
-            if(i%ScaleSize==0)
-            for (int j = 0; j < bitmap.getHeight(); j++) {
-                bitmap.setPixel(i, j, Color.GRAY);
-                bitmap.setPixel(j, i, Color.GRAY);
+        bitmap = Bitmap.createScaledBitmap(bitmap,PixelRate,PixelRate,false);
+        bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,false);
+        if(_isGrid){
+            for (int i = 0; i < bitmap.getWidth(); i++) {
+                if(i%ScaleSize==0)
+                for (int j = 0; j < bitmap.getHeight(); j++) {
+                    bitmap.setPixel(i, j, Color.GRAY);
+                    bitmap.setPixel(j, i, Color.GRAY);
+                }
             }
         }
-        for (int i = (ScaleSize/2); i < bitmap.getWidth()-ScaleSize; i+=30) {
-                for (int j = (ScaleSize/2); j < bitmap.getHeight()-ScaleSize; j+=30) {
+        if(_isDots) {
+            for (int i = (ScaleSize / 2); i < bitmap.getWidth() - ScaleSize; i += ScaleSize) {
+                for (int j = (ScaleSize / 2); j < bitmap.getHeight() - ScaleSize; j += ScaleSize) {
                     int c = Color.BLACK;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        c = bitmap.getPixel(i,j);
-                        Log.e("color","["+i+","+j+"]:"+Color.valueOf(c).toString());
+                        c = bitmap.getPixel(i, j);
+                        Log.e("color", "[" + i + "," + j + "]:" + Color.valueOf(c).toString());
                     }
                     c = Color.BLACK;
-                    bitmap.setPixel(i-1, j-1, c);
-                    bitmap.setPixel(i-1, j, c);
-                    bitmap.setPixel(i, j-1, c);
+                    bitmap.setPixel(i - 1, j - 1, c);
+                    bitmap.setPixel(i - 1, j, c);
+                    bitmap.setPixel(i, j - 1, c);
                     bitmap.setPixel(i, j, c);
-                    bitmap.setPixel(i+1, j, c);
-                    bitmap.setPixel(i, j+1, c);
-                    bitmap.setPixel(i+1, j+1, c);
+                    bitmap.setPixel(i + 1, j, c);
+                    bitmap.setPixel(i, j + 1, c);
+                    bitmap.setPixel(i + 1, j + 1, c);
                 }
+            }
         }
+        if(_isGray)
+            bitmap = toGrayscale(bitmap);
         return bitmap;
     }
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {

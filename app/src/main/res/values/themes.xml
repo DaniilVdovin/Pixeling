@@ -13,4 +13,10 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="Theme.CButton.Green" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">#4CAF50</item>
+    </style>
+    <style name="Theme.CButton.Red" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">#F44336</item>
+    </style>
 </resources>
