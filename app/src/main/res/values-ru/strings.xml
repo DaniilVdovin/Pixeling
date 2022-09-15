@@ -9,6 +9,6 @@
     <string name="p_r">Пиксельная шкала</string>
     <string name="parameters">Параметры</string>
     <string name="reset">Перезагрузить</string>
-    <string name="save">Сохранять</string>
+    <string name="save">Сохранить</string>
     <string name="filter">Фильтр</string>
 </resources>
