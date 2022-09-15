@@ -1,9 +1,15 @@
 package com.daniilvdovin.pixelit;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,6 +20,9 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -22,16 +31,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: Editor
     //System
     private static final int RESULT_LOAD_IMG = 1;
-    private static final int SCALESIZE = 40;
+    private static final int SCALESIZE = 60;//50
     private static final int PIXEL = 8;
     Bitmap image;
+    String image_name;
     int ResultSize = 0;
 
     //UI
@@ -50,17 +62,26 @@ public class MainActivity extends AppCompatActivity {
     boolean _isGray = false;
     boolean _isFilter = false;
     boolean _isScanColor = false;
-    int ScaleSize = 30; //30
-    int PixelRate = 48; //48
+    int ScaleSize = 30;
+    int PixelRate = 48;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
 
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED) {
+        } else {
+            requestPermissionLauncher.launch(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
         //Init UI
         imageView = findViewById(R.id.imageView);
         reset = findViewById(R.id.b_reset);
@@ -81,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
         });
         //Pixelating
         reset.setOnClickListener(view -> {
+        });
+        save.setOnClickListener(view -> {
+            saveImage(pixelit_b(image),image_name);
         });
         //UI-Logic
         s_gray.setOnClickListener(view -> {
@@ -104,12 +128,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(i==0)i=1;
-                ScaleSize = SCALESIZE/(i>4?4:i);
+                ScaleSize = SCALESIZE;///(i>4?4:i);
                 //Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
                 PixelRate = PIXEL*i;
                 t_pixelRate.setText(getText(R.string.p_r)+": "+i);
                 t_pixelSize.setText(getText(R.string.p_s)+": "+PixelRate+"x"+PixelRate);
-                t_imageSize.setText(getText(R.string.i_s)+": "+(PixelRate*ScaleSize)+1+"x"+(PixelRate*ScaleSize)+1);
                 refreshImage(image);
             }
 
@@ -144,9 +167,15 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             try {
                 final Uri imageUri = data.getData();
+                final String path = getPathFromURI(imageUri);
+                if (path != null) {
+                    File f = new File(path);
+                    image_name = f.getName();
+                }
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 image = BitmapFactory.decodeStream(imageStream);
-                imageView.setImageBitmap(image);
+                imageView.setImageBitmap(pixelit_b(image));
+
                 Parameters_ShowHide(image != null);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -156,6 +185,19 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "You haven't picked Image",Toast.LENGTH_LONG).show();
         }
     }
+    public String getPathFromURI(Uri contentUri) {
+        String res = null;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if (cursor.moveToFirst()) {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            res = cursor.getString(column_index);
+        }
+        cursor.close();
+        return res;
+    }
+
+    @SuppressLint("SetTextI18n")
     Bitmap pixelit_b(Bitmap bitmap){
         //x30
         bitmap = Bitmap.createScaledBitmap(bitmap,PixelRate,PixelRate,false);
@@ -180,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                         c = Color.BLACK;
                     }
-                    if(ScaleSize<20) {
                         bitmap.setPixel(i - 1, j - 1, c);
                         bitmap.setPixel(i + 1, j - 1, c);
                         bitmap.setPixel(i - 1, j, c);
@@ -191,14 +232,20 @@ public class MainActivity extends AppCompatActivity {
                         bitmap.setPixel(i + 1, j + 1, c);
                         bitmap.setPixel(i - 1, j + 1, c);
                         bitmap.setPixel(i + 1, j - 1, c);
-                    }else{
-                        bitmap.setPixel(i, j, c);
-                    }
+                        int x = i;
+                        int y = j;
+                        int radius = 3;
+                        for (y = -radius; y <= radius; y++)
+                            for (x = -radius; x <= radius; x++)
+                                if ((x * x) + (y * y) <= (radius * radius))
+                                    bitmap.setPixel(i+x, j+y, c);
                 }
             }
         }
         if(_isGray)
             bitmap = toGrayscale(bitmap);
+
+        t_imageSize.setText(getText(R.string.i_s)+": "+bitmap.getWidth()+"x"+bitmap.getHeight());
         return bitmap;
     }
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {
@@ -215,5 +262,16 @@ public class MainActivity extends AppCompatActivity {
         c.drawBitmap(bmpOriginal, 0, 0, paint);
         return bmpGrayscale;
     }
-
+    private void saveImage(Bitmap finalBitmap, String image_name) {
+        MediaStore.Images.Media.insertImage(this.getContentResolver(), finalBitmap ,"Pixel_"+image_name+".jpg", "description");
+        Toast.makeText(this,"Save!",Toast.LENGTH_LONG).show();
+    }
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    imageView.setEnabled(true);
+                } else {
+                    imageView.setEnabled(false);
+                }
+            });
 }
