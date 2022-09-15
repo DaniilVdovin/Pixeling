@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pixelate it now</string>
+    <string name="d_grid">Показать сетку</string>
+    <string name="d_dot">Отображение точек</string>
+    <string name="d_gray">ч/б</string>
+    <string name="p_s">Размер пикселя</string>
+    <string name="i_s">Размер изображения</string>
+    <string name="p_r">Пиксельная шкала</string>
+    <string name="parameters">Параметры</string>
+    <string name="reset">Перезагрузить</string>
+    <string name="save">Сохранять</string>
+    <string name="filter">Фильтр</string>
+</resources>

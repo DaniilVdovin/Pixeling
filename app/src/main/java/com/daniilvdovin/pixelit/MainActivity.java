@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 //Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
                 PixelRate = PIXEL*i;
                 t_pixelRate.setText(getText(R.string.p_r)+": "+i);
-                t_pixelSize.setText(getText(R.string.p_s)+": "+PixelRate+"x"+PixelRate);
+                t_pixelSize.setText(getText(R.string.p_s)+"\n"+PixelRate+"x"+PixelRate);
                 refreshImage(image);
             }
 
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         if(_isGray)
             bitmap = toGrayscale(bitmap);
 
-        t_imageSize.setText(getText(R.string.i_s)+": "+bitmap.getWidth()+"x"+bitmap.getHeight());
+        t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
         return bitmap;
     }
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {
@@ -263,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
         return bmpGrayscale;
     }
     private void saveImage(Bitmap finalBitmap, String image_name) {
+        //Log.e("SAVE","Pixel_"+image_name+".jpg");
         MediaStore.Images.Media.insertImage(this.getContentResolver(), finalBitmap ,"Pixel_"+image_name+".jpg", "description");
         Toast.makeText(this,"Save!",Toast.LENGTH_LONG).show();
     }
