@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">PixelIt</string>
+    <string name="d_grid">Display Grid</string>
+    <string name="d_dot">Display Dot</string>
+    <string name="d_gray">To Grayscale</string>
+    <string name="p_s">Pixel size</string>
+    <string name="i_s">Image size</string>
+    <string name="p_r">Pixel Rate</string>
+    <string name="parameters">Parameters</string>
+    <string name="reset">Reset</string>
+    <string name="save">Save</string>
+    <string name="filter">Filter</string>
 </resources>

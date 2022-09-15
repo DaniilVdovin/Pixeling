@@ -48,7 +48,7 @@
                 tools:srcCompat="@tools:sample/avatars" />
 
             <SeekBar
-                android:id="@+id/seekBar"
+                android:id="@+id/sb_pixelRate"
                 style="@style/Widget.AppCompat.SeekBar.Discrete"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
@@ -63,9 +63,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Pixels Rate: 6s"
+                android:text="@string/p_r"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/seekBar"
+                app:layout_constraintBottom_toTopOf="@+id/sb_pixelRate"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
@@ -74,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Parameters"
+                android:text="@string/parameters"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imageView" />
@@ -103,7 +103,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="Display Grid" />
+                        android:text="@string/d_grid" />
 
                     <Switch
                         android:id="@+id/s_dot"
@@ -112,7 +112,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="Display Dot" />
+                        android:text="@string/d_dot" />
                 </TableRow>
 
                 <TableRow
@@ -128,7 +128,16 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="To Grayscale" />
+                        android:text="@string/d_gray" />
+
+                    <Switch
+                        android:id="@+id/s_filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/filter" />
                 </TableRow>
 
                 <TableRow
@@ -144,7 +153,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="pixel size:48x48" />
+                        android:text="@string/p_s" />
 
                     <TextView
                         android:id="@+id/t_ImageSize"
@@ -153,12 +162,12 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="image size:1440x1440" />
+                        android:text="@string/i_s" />
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent" />
 
             </TableLayout>
 
@@ -196,7 +205,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_weight="1"
-                android:text="Reset" />
+                android:text="@string/reset" />
 
             <Button
                 android:id="@+id/b_save"
@@ -206,7 +215,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_weight="1"
-                android:text="Save" />
+                android:text="@string/save" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
