@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         return res;
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     Bitmap pixelit_b(Bitmap bitmap){
         //x30
         bitmap = Bitmap.createScaledBitmap(bitmap,PixelRate,PixelRate,false);
@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
             bitmap = toGrayscale(bitmap);
 
         t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
+        save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
         return bitmap;
     }
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {
@@ -275,4 +276,7 @@ public class MainActivity extends AppCompatActivity {
                     imageView.setEnabled(false);
                 }
             });
+    public static float byteSizeOf(Bitmap bitmap) {
+        return ((float)bitmap.getAllocationByteCount())/1024/100;
+    }
 }
