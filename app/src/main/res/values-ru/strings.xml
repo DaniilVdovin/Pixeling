@@ -11,4 +11,6 @@
     <string name="reset">Перезагрузить</string>
     <string name="save">Сохранить</string>
     <string name="filter">Фильтр</string>
+    <string name="toast_save">Сохранено!</string>
+    <string name="pick_image">Выберите изображение</string>
 </resources>

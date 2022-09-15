@@ -10,4 +10,6 @@
     <string name="reset">Reset</string>
     <string name="save">Save</string>
     <string name="filter">Filter</string>
+    <string name="toast_save">Saved!</string>
+    <string name="pick_image">Pick image</string>
 </resources>

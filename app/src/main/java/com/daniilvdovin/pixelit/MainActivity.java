@@ -24,6 +24,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     //UI
     ImageView imageView;
-    Button reset,save;
+    Button reset,save,imagepicker;
     //UI-Parameters
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch s_grid,s_gray,s_dot,s_filter;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         reset = findViewById(R.id.b_reset);
         save = findViewById(R.id.b_save);
+        imagepicker = findViewById(R.id.b_imagepick);
         s_gray = findViewById(R.id.s_gray);
         s_grid = findViewById(R.id.s_grid);
         s_dot = findViewById(R.id.s_dot);
@@ -97,9 +99,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Image Load
-        imageView.setOnClickListener(view->{
+        View.OnClickListener ip = (v) -> {
             startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
-        });
+        };
+        imagepicker.setOnClickListener(ip);
+        imageView.setOnClickListener(ip);
+
         //Pixelating
         reset.setOnClickListener(view -> {
         });
@@ -266,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveImage(Bitmap finalBitmap, String image_name) {
         //Log.e("SAVE","Pixel_"+image_name+".jpg");
         MediaStore.Images.Media.insertImage(this.getContentResolver(), finalBitmap ,"Pixel_"+image_name+".jpg", "description");
-        Toast.makeText(this,"Save!",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.toast_save,Toast.LENGTH_LONG).show();
     }
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
