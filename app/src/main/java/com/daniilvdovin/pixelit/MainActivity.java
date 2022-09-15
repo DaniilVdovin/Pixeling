@@ -1,5 +1,15 @@
 package com.daniilvdovin.pixelit;
 
+import static com.daniilvdovin.pixelit.Data.PixelRate;
+import static com.daniilvdovin.pixelit.Data.ScaleSize;
+import static com.daniilvdovin.pixelit.Data._isDots;
+import static com.daniilvdovin.pixelit.Data._isFilter;
+import static com.daniilvdovin.pixelit.Data._isGray;
+import static com.daniilvdovin.pixelit.Data._isGrid;
+import static com.daniilvdovin.pixelit.Data._isScanColor;
+import static com.daniilvdovin.pixelit.Data.image;
+import static com.daniilvdovin.pixelit.Data.image_name;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT_LOAD_IMG = 1;
     private static final int SCALESIZE = 60;//50
     private static final int PIXEL = 8;
-    Bitmap image;
-    String image_name;
     int ResultSize = 0;
 
     //UI
@@ -58,13 +66,7 @@ public class MainActivity extends AppCompatActivity {
     TextView t_pixelSize,t_imageSize,t_pixelRate;
 
     //Parameters
-    boolean _isDots = false;
-    boolean _isGrid = false;
-    boolean _isGray = false;
-    boolean _isFilter = false;
-    boolean _isScanColor = false;
-    int ScaleSize = 30;
-    int PixelRate = 48;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         t_pixelSize = findViewById(R.id.t_pixelSize);
         t_imageSize = findViewById(R.id.t_ImageSize);
         t_pixelRate = findViewById(R.id.t_pixel_rate);
-
+        Parameters_ShowHide(image != null);
 
         //Image Load
         View.OnClickListener ip = (v) -> {
@@ -104,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         };
         imagepicker.setOnClickListener(ip);
         imageView.setOnClickListener(ip);
+
 
         //Pixelating
         reset.setOnClickListener(view -> {
@@ -137,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 //Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
                 PixelRate = PIXEL*i;
                 t_pixelRate.setText(getText(R.string.p_r)+": "+i);
-                t_pixelSize.setText(getText(R.string.p_s)+"\n"+PixelRate+"x"+PixelRate);
+                t_pixelSize.setText(getText(R.string.p_s)+"\n"+ PixelRate+"x"+ PixelRate);
                 refreshImage(image);
             }
 
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        Parameters_ShowHide(image != null);
+
     }
     void Parameters_ShowHide(boolean _is){
         reset.setEnabled(_is);
@@ -205,7 +208,8 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint({"SetTextI18n", "DefaultLocale"})
     Bitmap pixelit_b(Bitmap bitmap){
         //x30
-        bitmap = Bitmap.createScaledBitmap(bitmap,PixelRate,PixelRate,false);
+        if(bitmap==null)return null;
+        bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
         bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
         if(_isGrid){
             for (int i = 0; i < bitmap.getWidth(); i++) {
