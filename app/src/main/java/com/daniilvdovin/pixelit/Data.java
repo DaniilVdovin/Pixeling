@@ -9,6 +9,7 @@ public class Data {
     public static boolean _isGray = false;
     public static boolean _isFilter = false;
     public static boolean _isScanColor = false;
+    public static boolean _isDebug = false;
     public static  int ScaleSize = 30;
     public static int PixelRate = 48;
     public static Bitmap image;
