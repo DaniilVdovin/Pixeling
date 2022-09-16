@@ -13,9 +13,9 @@
     <string name="filter">Фильтр</string>
     <string name="toast_save">Сохранено!</string>
     <string name="pick_image">Выберите изображение</string>
-    <string name="b_share">Share</string>
-    <string name="message">Pixelate It now, download on Google Play</string>
-    <string name="share_title">Share image using</string>
-    <string name="dont_select_image">You haven\'t picked Image</string>
-    <string name="sww">Something went wrong</string>
+    <string name="b_share">Поделиться</string>
+    <string name="message">Pixelate It now, загрузить с Google Play</string>
+    <string name="share_title">Поделиться этим изображением</string>
+    <string name="dont_select_image">Вы не выбрали изображение</string>
+    <string name="sww">Что-то пошло не так</string>
 </resources>

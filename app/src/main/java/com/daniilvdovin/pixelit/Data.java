@@ -3,6 +3,7 @@ package com.daniilvdovin.pixelit;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+//Static data class
 public class Data {
     //Dots on image
     public static boolean _isDots = false;
