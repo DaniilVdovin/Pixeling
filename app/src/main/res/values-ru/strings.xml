@@ -18,4 +18,5 @@
     <string name="share_title">Поделиться этим изображением</string>
     <string name="dont_select_image">Вы не выбрали изображение</string>
     <string name="sww">Что-то пошло не так</string>
+    <string name="notfound">Ваше устройство не поодерживвает кадрирование</string>
 </resources>

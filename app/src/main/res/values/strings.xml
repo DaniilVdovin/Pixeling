@@ -17,4 +17,5 @@
     <string name="share_title">Share image using</string>
     <string name="dont_select_image">You haven\'t picked Image</string>
     <string name="sww">Something went wrong</string>
+    <string name="notfound">Your device is not supporting the crop action</string>
 </resources>

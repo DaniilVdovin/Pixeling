@@ -9,6 +9,7 @@ import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
 import static com.daniilvdovin.pixelit.Data._isDebug;
 import static com.daniilvdovin.pixelit.Data._isCanCrop;
+import static com.daniilvdovin.pixelit.Data.colors;
 import static com.daniilvdovin.pixelit.Data.image;
 import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -29,6 +31,7 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -46,6 +49,7 @@ import android.widget.Toast;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.LongFunction;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: Editor
@@ -113,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Image Load
         View.OnClickListener ip = (v) -> {
+
             startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
         };
         imagepicker.setOnClickListener(ip);
@@ -196,15 +201,23 @@ public class MainActivity extends AppCompatActivity {
             if(_isCanCrop) {
                 switch (reqCode) {
                     case RESULT_LOAD_IMG://First pick image and send to crop
-                        Intent photoCropIntent = new Intent("com.android.camera.action.CROP");
-                        photoCropIntent.putExtra("crop", true);
-                        photoCropIntent.putExtra("aspectX", 1);
-                        photoCropIntent.putExtra("aspectY", 1);
-                        photoCropIntent.setData(data.getData());
-                        startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
+                        try {
+                            Intent photoCropIntent = new Intent("com.android.camera.action.CROP");
+                            photoCropIntent.putExtra("crop", true);
+                            photoCropIntent.putExtra("aspectX", 1);
+                            photoCropIntent.putExtra("aspectY", 1);
+                            photoCropIntent.putExtra("return-data",true);
+                            photoCropIntent.setData(data.getData());
+                            loadBitmapFromIntent(data);
+                            startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
+                        }catch (ActivityNotFoundException e){
+                            Toast.makeText(this, R.string.notfound, Toast.LENGTH_SHORT);
+                            loadBitmapFromIntent(data);
+                        }
                         break;
                     case RESULT_CROP_IMG://Load image after crop
                         loadBitmapFromIntent(data);
+                        break;
                 }
             }else{
                 loadBitmapFromIntent(data);
@@ -222,18 +235,34 @@ public class MainActivity extends AppCompatActivity {
             final String path = getPathFromURI(imageUri);
             final InputStream imageStream = getContentResolver().openInputStream(imageUri);
             image = BitmapFactory.decodeStream(imageStream);
-            imageView.setImageBitmap(pixelit_b(image));
-            imageStream.close();
-
+            int dif = Math.max((image.getHeight()-image.getWidth()),(image.getWidth()-image.getHeight()));
+            if(image.getHeight()<image.getWidth())image = cropBitmap(image,dif/2,image.getWidth()-dif/2,0,image.getHeight());
+            if(image.getHeight()>image.getWidth())image = cropBitmap(image,0,image.getWidth(), dif/2, image.getHeight()-dif/2);
+            refreshImage(image);
             Parameters_ShowHide(image != null);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this,
                     R.string.sww,
                     Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+    public static Bitmap cropBitmap(Bitmap bitmap, int startX, int endX, int startY, int endY) {
+        if(_isDebug) Log.e("CROP",(endX - startX)+"x"+(endY - startY));
+        Bitmap output = Bitmap.createBitmap(endX - startX, endY - startY, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setColor(0xffffffff);
+
+        Rect srcRect = new Rect(startX, startY, endX, endY);
+        Rect desRect = new Rect(0, 0, endX - startX, endY - startY);
+
+        canvas.drawBitmap(bitmap, srcRect, desRect, paint);
+
+        return output;
     }
     //Get path from loaded uri
     public String getPathFromURI(Uri contentUri) {
@@ -267,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
                             if(_isScanColor) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                     c = bitmap.getPixel(i, j);
+                                    colors.add(Color.valueOf(c));
                                     if(_isDebug)Log.e("color", "[" + i + "," + j + "]:" + Color.valueOf(c).toString());
                                 }
                             }
