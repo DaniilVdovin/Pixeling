@@ -8,6 +8,7 @@ import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
 import static com.daniilvdovin.pixelit.Data._isDebug;
+import static com.daniilvdovin.pixelit.Data._isCanCrop;
 import static com.daniilvdovin.pixelit.Data.image;
 import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
@@ -191,38 +192,47 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(reqCode, resultCode, data);
         if(_isDebug)Log.e("IMAGE","resultCode: "+resultCode);
         if (resultCode == RESULT_OK) {
-            switch (reqCode) {
-                case RESULT_LOAD_IMG://First pick image and send to crop
-                    Intent photoCropIntent = new Intent("com.android.camera.action.CROP");
-                    photoCropIntent.putExtra("crop",true);
-                    photoCropIntent.putExtra("aspectX", 1);
-                    photoCropIntent.putExtra("aspectY", 1);
-                    photoCropIntent.setData(data.getData());
-                    startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
-                    break;
-                case RESULT_CROP_IMG://Load image after crop
-                    try {
-                        imageUri = data.getData();
-                        final String path = getPathFromURI(imageUri);
-                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                        image = BitmapFactory.decodeStream(imageStream);
-                        imageView.setImageBitmap(pixelit_b(image));
-                        imageStream.close();
-
-                        Parameters_ShowHide(image != null);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        Toast.makeText(this,
-                                R.string.sww,
-                                Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            //if need crop set _isCanCrop = true
+            if(_isCanCrop) {
+                switch (reqCode) {
+                    case RESULT_LOAD_IMG://First pick image and send to crop
+                        Intent photoCropIntent = new Intent("com.android.camera.action.CROP");
+                        photoCropIntent.putExtra("crop", true);
+                        photoCropIntent.putExtra("aspectX", 1);
+                        photoCropIntent.putExtra("aspectY", 1);
+                        photoCropIntent.setData(data.getData());
+                        startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
+                        break;
+                    case RESULT_CROP_IMG://Load image after crop
+                        loadBitmapFromIntent(data);
+                }
+            }else{
+                loadBitmapFromIntent(data);
             }
         }else {
             Toast.makeText(this,
                     R.string.dont_select_image,
                     Toast.LENGTH_LONG).show();
+        }
+    }
+    //Load image from intent data
+    public void loadBitmapFromIntent(Intent data){
+        try {
+            imageUri = data.getData();
+            final String path = getPathFromURI(imageUri);
+            final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+            image = BitmapFactory.decodeStream(imageStream);
+            imageView.setImageBitmap(pixelit_b(image));
+            imageStream.close();
+
+            Parameters_ShowHide(image != null);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this,
+                    R.string.sww,
+                    Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     //Get path from loaded uri
