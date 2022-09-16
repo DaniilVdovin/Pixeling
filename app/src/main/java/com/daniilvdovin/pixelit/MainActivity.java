@@ -8,6 +8,8 @@ import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
 import static com.daniilvdovin.pixelit.Data.image;
+import static com.daniilvdovin.pixelit.Data.imageUri;
+import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -28,36 +30,37 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: Editor
     //System
     private static final int RESULT_LOAD_IMG = 1;
+    private static final int RESULT_CROP_IMG = 2;
     private static final int SCALESIZE = 60;//50
     private static final int PIXEL = 8;
     int ResultSize = 0;
 
     //UI
     ImageView imageView;
-    Button reset,save,imagepicker;
+    Button reset,save,imagepicker,share;
+    ProgressBar progressBar;
     //UI-Parameters
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch s_grid,s_gray,s_dot,s_filter;
@@ -65,14 +68,10 @@ public class MainActivity extends AppCompatActivity {
     //UI-Text
     TextView t_pixelSize,t_imageSize,t_pixelRate;
 
-    //Parameters
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -89,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         reset = findViewById(R.id.b_reset);
         save = findViewById(R.id.b_save);
+        share = findViewById(R.id.b_share);
         imagepicker = findViewById(R.id.b_imagepick);
         s_gray = findViewById(R.id.s_gray);
         s_grid = findViewById(R.id.s_grid);
@@ -98,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         t_pixelSize = findViewById(R.id.t_pixelSize);
         t_imageSize = findViewById(R.id.t_ImageSize);
         t_pixelRate = findViewById(R.id.t_pixel_rate);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+        share.setVisibility(View.GONE);
         Parameters_ShowHide(image != null);
 
         //Image Load
@@ -112,7 +115,10 @@ public class MainActivity extends AppCompatActivity {
         reset.setOnClickListener(view -> {
         });
         save.setOnClickListener(view -> {
-            saveImage(pixelit_b(image),image_name);
+            saveImage();
+        });
+        share.setOnClickListener(view -> {
+            Share();
         });
         //UI-Logic
         s_gray.setOnClickListener(view -> {
@@ -171,23 +177,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-
+        Log.e("IMAGE","resultCode: "+resultCode);
         if (resultCode == RESULT_OK) {
-            try {
-                final Uri imageUri = data.getData();
-                final String path = getPathFromURI(imageUri);
-                if (path != null) {
-                    File f = new File(path);
-                    image_name = f.getName();
-                }
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                image = BitmapFactory.decodeStream(imageStream);
-                imageView.setImageBitmap(pixelit_b(image));
+            switch (reqCode) {
+                case RESULT_LOAD_IMG:
+                    // Received an image from the picker, now send an Intent for cropping
+                    Intent photoCropIntent = new Intent("com.android.camera.action.CROP");
+                    photoCropIntent.putExtra("crop",true);
+                    photoCropIntent.putExtra("aspectX", 1);
+                    photoCropIntent.putExtra("aspectY", 1);
+                    photoCropIntent.setData(data.getData());
+                    startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
+                    break;
+                case RESULT_CROP_IMG:
+                    try {
+                        imageUri = data.getData();
+                        final String path = getPathFromURI(imageUri);
+                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                        image = BitmapFactory.decodeStream(imageStream);
+                        imageView.setImageBitmap(pixelit_b(image));
+                        imageStream.close();
 
-                Parameters_ShowHide(image != null);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+                        Parameters_ShowHide(image != null);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
             }
         }else {
             Toast.makeText(this, "You haven't picked Image",Toast.LENGTH_LONG).show();
@@ -209,54 +226,72 @@ public class MainActivity extends AppCompatActivity {
     Bitmap pixelit_b(Bitmap bitmap){
         //x30
         if(bitmap==null)return null;
-        bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
-        bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
-        if(_isGrid){
-            for (int i = 0; i < bitmap.getWidth(); i++) {
-                if(i%ScaleSize==0)
-                for (int j = 0; j < bitmap.getHeight(); j++) {
-                    bitmap.setPixel(i, j, Color.GRAY);
-                    bitmap.setPixel(j, i, Color.GRAY);
-                }
-            }
-        }
-        if(_isDots) {
-            for (int i = (ScaleSize / 2); i < bitmap.getWidth(); i += ScaleSize) {
-                for (int j = (ScaleSize / 2); j < bitmap.getHeight(); j += ScaleSize) {
-                    int c = Color.BLACK;
-                    if(_isScanColor) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            c = bitmap.getPixel(i, j);
-                            //Log.e("color", "[" + i + "," + j + "]:" + Color.valueOf(c).toString());
+        @SuppressLint("StaticFieldLeak")
+        AsyncTask<Bitmap, Integer, Bitmap> ppro = new AsyncTask<Bitmap, Integer, Bitmap>(){
+            Bitmap bitmap;
+            @Override
+            protected Bitmap doInBackground(Bitmap... bitmaps) {
+                bitmap = bitmaps[0];
+                bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
+                bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
+                if(_isScanColor) {
+                    for (int i = (ScaleSize / 2); i < bitmap.getWidth(); i += ScaleSize) {
+                        for (int j = (ScaleSize / 2); j < bitmap.getHeight(); j += ScaleSize) {
+                            int c = Color.BLACK;
+                            if(_isScanColor) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    c = bitmap.getPixel(i, j);
+                                    //Log.e("color", "[" + i + "," + j + "]:" + Color.valueOf(c).toString());
+                                }
+                            }
                         }
-                        c = Color.BLACK;
                     }
-                        bitmap.setPixel(i - 1, j - 1, c);
-                        bitmap.setPixel(i + 1, j - 1, c);
-                        bitmap.setPixel(i - 1, j, c);
-                        bitmap.setPixel(i, j - 1, c);
-                        bitmap.setPixel(i, j, c);
-                        bitmap.setPixel(i + 1, j, c);
-                        bitmap.setPixel(i, j + 1, c);
-                        bitmap.setPixel(i + 1, j + 1, c);
-                        bitmap.setPixel(i - 1, j + 1, c);
-                        bitmap.setPixel(i + 1, j - 1, c);
-                        int x = i;
-                        int y = j;
-                        int radius = 3;
-                        for (y = -radius; y <= radius; y++)
-                            for (x = -radius; x <= radius; x++)
-                                if ((x * x) + (y * y) <= (radius * radius))
-                                    bitmap.setPixel(i+x, j+y, c);
                 }
+                if(_isGrid){
+                    for (int i = 0; i < bitmap.getWidth(); i++) {
+                        if(i%ScaleSize==0)
+                            for (int j = 0; j < bitmap.getHeight(); j++) {
+                                bitmap.setPixel(i, j, Color.GRAY);
+                                bitmap.setPixel(j, i, Color.GRAY);
+                            }
+                    }
+                }
+                if(_isDots) {
+                    for (int i = (ScaleSize / 2); i < bitmap.getWidth(); i += ScaleSize) {
+                        for (int j = (ScaleSize / 2); j < bitmap.getHeight(); j += ScaleSize) {
+                            int c = Color.BLACK;
+                            int x = i;
+                            int y = j;
+                            int radius = 3;
+                            for (y = -radius; y <= radius; y++)
+                                for (x = -radius; x <= radius; x++)
+                                    if ((x * x) + (y * y) <= (radius * radius))
+                                        bitmap.setPixel(i+x, j+y, c);
+                        }
+                    }
+                }
+                if(_isGray)
+                    bitmap = toGrayscale(bitmap);
+                return bitmap;
             }
-        }
-        if(_isGray)
-            bitmap = toGrayscale(bitmap);
 
-        t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
-        save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
-        return bitmap;
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                image_processed = bitmap;
+                progressBar.setVisibility(View.GONE);
+                imageView.setImageBitmap(image_processed);
+                t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
+                save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
+            }
+        };
+        ppro.execute(bitmap);
+        return image_processed;
     }
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {
         final int height = bmpOriginal.getHeight();
@@ -272,10 +307,19 @@ public class MainActivity extends AppCompatActivity {
         c.drawBitmap(bmpOriginal, 0, 0, paint);
         return bmpGrayscale;
     }
-    private void saveImage(Bitmap finalBitmap, String image_name) {
+    private Uri saveImage() {
         //Log.e("SAVE","Pixel_"+image_name+".jpg");
-        MediaStore.Images.Media.insertImage(this.getContentResolver(), finalBitmap ,"Pixel_"+image_name+".jpg", "description");
+        Uri temp = Uri.parse(MediaStore.Images.Media.insertImage(this.getContentResolver(), image_processed ,"Pixel_"+image_name+".jpg", "description"));
         Toast.makeText(this, R.string.toast_save,Toast.LENGTH_LONG).show();
+        return temp;
+    }
+    public void Share(){
+        Uri photoFile = saveImage();
+        final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/jpg");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, photoFile);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Pixelate It now, download on Google Play");
+        startActivity(Intent.createChooser(shareIntent, "Share image using"));
     }
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {

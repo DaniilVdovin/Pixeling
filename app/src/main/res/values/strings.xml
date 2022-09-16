@@ -12,4 +12,5 @@
     <string name="filter">Filter</string>
     <string name="toast_save">Saved!</string>
     <string name="pick_image">Pick image</string>
+    <string name="b_share">Share</string>
 </resources>
