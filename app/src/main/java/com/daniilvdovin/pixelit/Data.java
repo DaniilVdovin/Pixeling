@@ -19,7 +19,7 @@ public class Data {
     //Filter image (blurring)
     public static boolean _isFilter = false;
     //Scan color by pixels
-    public static boolean _isScanColor = true;
+    public static boolean _isScanColor = false;
     //Debug logs
     public static boolean _isDebug = false;
     //Can crop when load image

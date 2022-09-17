@@ -105,7 +105,9 @@ public class MainActivity extends AppCompatActivity {
         imagepicker.setEnabled(false);
         imageView.setEnabled(false);
         progressBar.setVisibility(View.GONE);
-        reset.setVisibility(View.VISIBLE);
+
+        //Editor
+        reset.setVisibility(_isScanColor?View.VISIBLE:View.GONE);
         //share.setVisibility(View.GONE);
         Parameters_ShowHide(image != null);
 
@@ -124,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Image Load
         View.OnClickListener ip = (v) -> {
-
             startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
         };
         imagepicker.setOnClickListener(ip);
@@ -163,7 +164,16 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(i==0)i=1;
+                if(i==0){
+                    imageView.setImageBitmap(image);
+                    Parameters_ShowHide(false);
+                    sb_pixelRate.setEnabled(true);
+                    t_pixelRate.setText(getText(R.string.p_r)+": "+getString(R.string.original));
+                    t_pixelSize.setText(getText(R.string.p_s)+"\n"+ 1+"x"+1);
+                    return;
+                }else{
+                    Parameters_ShowHide(true);
+                }
                 ScaleSize = SCALESIZE;///(i>4?4:i);
                 if(_isDebug)Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
                 PixelRate = PIXEL*i;
@@ -171,18 +181,11 @@ public class MainActivity extends AppCompatActivity {
                 t_pixelSize.setText(getText(R.string.p_s)+"\n"+ PixelRate+"x"+ PixelRate);
                 refreshImage(image);
             }
-
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
+            public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
     }
     //Off button if don't have loaded image
     void Parameters_ShowHide(boolean _is){
@@ -247,6 +250,11 @@ public class MainActivity extends AppCompatActivity {
             if(image.getHeight()<image.getWidth())image = cropBitmap(image,dif/2,image.getWidth()-dif/2,0,image.getHeight());
             if(image.getHeight()>image.getWidth())image = cropBitmap(image,0,image.getWidth(), dif/2, image.getHeight()-dif/2);
             refreshImage(image);
+            //Auto set PixelRate
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                sb_pixelRate.setProgress(1,true);
+            else
+                sb_pixelRate.setProgress(1);
             Parameters_ShowHide(image != null);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
