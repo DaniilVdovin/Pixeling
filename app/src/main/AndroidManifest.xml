@@ -16,6 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PixelIt"
         tools:targetApi="31">
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3688869810838809~2007034164"/>
+
         <activity
             android:name=".colorize.ColorizeActivity"
             android:exported="false" />

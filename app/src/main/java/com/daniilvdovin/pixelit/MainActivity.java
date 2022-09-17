@@ -7,6 +7,7 @@ import static com.daniilvdovin.pixelit.Data._isFilter;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
+import static com.daniilvdovin.pixelit.Data._isGoogleAds;
 import static com.daniilvdovin.pixelit.Data._isDebug;
 import static com.daniilvdovin.pixelit.Data._isCanCrop;
 import static com.daniilvdovin.pixelit.Data.colors;
@@ -49,6 +50,9 @@ import android.widget.Toast;
 
 import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -85,6 +89,15 @@ public class MainActivity extends AppCompatActivity {
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
+
+        //Google Ads
+        if(_isGoogleAds) {
+            AdView mAdView = findViewById(R.id.adView);
+            mAdView.setAdSize(AdSize.FULL_BANNER);
+            mAdView.setAdUnitId("ca-app-pub-3688869810838809/9160148766");
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
 
         //Init UI
         imageView = findViewById(R.id.imageView);

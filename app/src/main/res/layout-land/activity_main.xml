@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -16,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/MainFrame"
+            android:id="@+id/ImageFrame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -76,6 +77,25 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/AdFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="6dp"
+                app:cardPreventCornerOverlap="true"
+                app:cardUseCompatPadding="true">
+
+                <com.google.android.gms.ads.AdView
+                    android:id="@+id/adView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    ads:adSize="FULL_BANNER"
+                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766"/>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:id="@+id/MainFrame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -94,7 +114,7 @@
                         android:id="@+id/sb_pixelRate"
                         style="@style/Widget.AppCompat.SeekBar.Discrete"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:max="10"
                         android:progress="6"
                         app:layout_constraintBottom_toBottomOf="parent"

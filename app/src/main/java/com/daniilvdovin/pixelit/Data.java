@@ -20,6 +20,8 @@ public class Data {
     public static boolean _isFilter = false;
     //Scan color by pixels
     public static boolean _isScanColor = false;
+    //Google Ads switch
+    public static boolean _isGoogleAds = true;
     //Debug logs
     public static boolean _isDebug = false;
     //Can crop when load image

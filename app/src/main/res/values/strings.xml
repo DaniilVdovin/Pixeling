@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pixelate it now</string>
+    <string name="app_name">Pixelate it</string>
     <string name="d_grid">Display Grid</string>
     <string name="d_dot">Display Dot</string>
     <string name="d_gray">To Grayscale</string>
