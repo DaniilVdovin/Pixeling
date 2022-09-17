@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 
+import com.daniilvdovin.pixelit.colorize.PixelData;
+
 import java.util.List;
 
 //Static data class
@@ -17,7 +19,7 @@ public class Data {
     //Filter image (blurring)
     public static boolean _isFilter = false;
     //Scan color by pixels
-    public static boolean _isScanColor = true;
+    public static boolean _isScanColor = false;
     //Debug logs
     public static boolean _isDebug = false;
     //Can crop when load image
@@ -35,5 +37,5 @@ public class Data {
     //Image path after crop / name image after save ("Pixel_"+image_name+".jpg")
     public static String image_name;
     //Color array
-    public static List<Color> colors;
+    public static List<PixelData> colors;
 }

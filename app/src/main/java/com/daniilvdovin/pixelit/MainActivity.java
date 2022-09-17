@@ -46,9 +46,15 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
+import com.daniilvdovin.pixelit.colorize.PixelData;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.LongFunction;
 
 public class MainActivity extends AppCompatActivity {
@@ -99,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
         imagepicker.setEnabled(false);
         imageView.setEnabled(false);
         progressBar.setVisibility(View.GONE);
+
+        //Editor
+        reset.setVisibility(_isScanColor?View.VISIBLE:View.GONE);
         //share.setVisibility(View.GONE);
         Parameters_ShowHide(image != null);
 
@@ -117,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Image Load
         View.OnClickListener ip = (v) -> {
-
             startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
         };
         imagepicker.setOnClickListener(ip);
@@ -126,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         //UI-Logic
         //UI-Logic-Button
         reset.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, ColorizeActivity.class));
         });
         save.setOnClickListener(view -> {
             saveImage();
@@ -155,7 +164,16 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(i==0)i=1;
+                if(i==0){
+                    imageView.setImageBitmap(image);
+                    Parameters_ShowHide(false);
+                    sb_pixelRate.setEnabled(true);
+                    t_pixelRate.setText(getText(R.string.p_r)+": "+getString(R.string.original));
+                    t_pixelSize.setText(getText(R.string.p_s)+"\n"+ 1+"x"+1);
+                    return;
+                }else{
+                    Parameters_ShowHide(true);
+                }
                 ScaleSize = SCALESIZE;///(i>4?4:i);
                 if(_isDebug)Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
                 PixelRate = PIXEL*i;
@@ -163,18 +181,11 @@ public class MainActivity extends AppCompatActivity {
                 t_pixelSize.setText(getText(R.string.p_s)+"\n"+ PixelRate+"x"+ PixelRate);
                 refreshImage(image);
             }
-
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
+            public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
     }
     //Off button if don't have loaded image
     void Parameters_ShowHide(boolean _is){
@@ -239,6 +250,11 @@ public class MainActivity extends AppCompatActivity {
             if(image.getHeight()<image.getWidth())image = cropBitmap(image,dif/2,image.getWidth()-dif/2,0,image.getHeight());
             if(image.getHeight()>image.getWidth())image = cropBitmap(image,0,image.getWidth(), dif/2, image.getHeight()-dif/2);
             refreshImage(image);
+            //Auto set PixelRate
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                sb_pixelRate.setProgress(1,true);
+            else
+                sb_pixelRate.setProgress(1);
             Parameters_ShowHide(image != null);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -280,6 +296,34 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint({"SetTextI18n", "DefaultLocale"})
     Bitmap pixelit_b(Bitmap bitmap){
         if(bitmap==null)return null;
+        if(_isScanColor) {
+            //Scan color on original image after pixelate
+            @SuppressLint("StaticFieldLeak")
+            AsyncTask<Bitmap, PixelData, List<PixelData>> scancolor = new AsyncTask<Bitmap, PixelData, List<PixelData>>() {
+                @Override
+                protected List<PixelData> doInBackground(Bitmap... bitmaps) {
+                    List<PixelData> temp = new ArrayList<>();
+                    for (int i = (ScaleSize / 2); i < bitmap.getWidth(); i += ScaleSize) {
+                        for (int j = (ScaleSize / 2); j < bitmap.getHeight(); j += ScaleSize) {
+                            int c = Color.BLACK;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    c = bitmap.getPixel(i, j);
+                                    temp.add(new PixelData(i/ScaleSize, j/ScaleSize, c, 0,i/ScaleSize+"."+j/ScaleSize));
+                                    if (_isDebug)
+                                        Log.e("color", "[" + i/ScaleSize + "," + j/ScaleSize + "]:" + Color.valueOf(c).toString());
+                            }
+                        }
+                    }
+                    return temp;
+                }
+                @Override
+                protected void onPostExecute(List<PixelData> pixelData) {
+                    super.onPostExecute(pixelData);
+                    colors = pixelData;
+                }
+            };
+            scancolor.execute(bitmap);
+        }
         @SuppressLint("StaticFieldLeak")
         AsyncTask<Bitmap, Integer, Bitmap> ppro = new AsyncTask<Bitmap, Integer, Bitmap>(){
             Bitmap bitmap;
@@ -288,21 +332,6 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = bitmaps[0];
                 bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
                 bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
-                //Scan color on original image after pixelate
-                if(_isScanColor) {
-                    for (int i = (ScaleSize / 2); i < bitmap.getWidth(); i += ScaleSize) {
-                        for (int j = (ScaleSize / 2); j < bitmap.getHeight(); j += ScaleSize) {
-                            int c = Color.BLACK;
-                            if(_isScanColor) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    c = bitmap.getPixel(i, j);
-                                    colors.add(Color.valueOf(c));
-                                    if(_isDebug)Log.e("color", "[" + i + "," + j + "]:" + Color.valueOf(c).toString());
-                                }
-                            }
-                        }
-                    }
-                }
                 //Display Grid on image
                 if(_isGrid){
                     for (int i = 0; i < bitmap.getWidth(); i++) {
