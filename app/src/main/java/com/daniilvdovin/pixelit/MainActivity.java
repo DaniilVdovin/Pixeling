@@ -17,6 +17,7 @@ import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
@@ -50,9 +51,14 @@ import android.widget.Toast;
 
 import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -81,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
     //UI-Text
     TextView t_pixelSize,t_imageSize,t_pixelRate;
 
+    //Google ads frame
+    View AdFrame;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,15 +97,6 @@ public class MainActivity extends AppCompatActivity {
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
-
-        //Google Ads
-        if(_isGoogleAds) {
-            AdView mAdView = findViewById(R.id.adView);
-            mAdView.setAdSize(AdSize.FULL_BANNER);
-            mAdView.setAdUnitId("ca-app-pub-3688869810838809/9160148766");
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
 
         //Init UI
         imageView = findViewById(R.id.imageView);
@@ -114,16 +113,51 @@ public class MainActivity extends AppCompatActivity {
         t_imageSize = findViewById(R.id.t_ImageSize);
         t_pixelRate = findViewById(R.id.t_pixel_rate);
         progressBar = findViewById(R.id.progressBar);
-        //UI PreSetup
-        imagepicker.setEnabled(false);
-        imageView.setEnabled(false);
-        progressBar.setVisibility(View.GONE);
+        AdFrame = findViewById(R.id.AdFrame);
+        //UI PreSetup9
+        if(image==null) {
+            imagepicker.setEnabled(false);
+            imageView.setEnabled(false);
+            progressBar.setVisibility(View.GONE);
+        }else{
+            refreshImage(image);
+        }
+        AdFrame.setVisibility(View.GONE);
+        //Google Ads
+        if(_isGoogleAds) {
+            MobileAds.initialize(this, initializationStatus -> {
+                if(_isDebug)Log.e("ADS","Initialization Complete");
+            });
+            AdView mAdView = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+            mAdView.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    super.onAdClosed();
+                    AdFrame.setVisibility(View.GONE);
+                    if(_isDebug)Log.e("ADS","Ad Closed");
+                }
 
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    super.onAdFailedToLoad(loadAdError);
+                    AdFrame.setVisibility(View.GONE);
+                    if(_isDebug)Log.e("ADS","Ad Failed To Load");
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                    AdFrame.setVisibility(View.VISIBLE);
+                    if(_isDebug)Log.e("ADS","Ad Loaded");
+                }
+            });
+        }
         //Editor
         reset.setVisibility(_isScanColor?View.VISIBLE:View.GONE);
         //share.setVisibility(View.GONE);
         Parameters_ShowHide(image != null);
-
         //Permissions
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==

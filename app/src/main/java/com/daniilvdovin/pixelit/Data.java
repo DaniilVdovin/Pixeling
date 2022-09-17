@@ -23,7 +23,7 @@ public class Data {
     //Google Ads switch
     public static boolean _isGoogleAds = true;
     //Debug logs
-    public static boolean _isDebug = false;
+    public static boolean _isDebug = true;
     //Can crop when load image
     public static boolean _isCanCrop = false;
     //Upscale image on Scale Size

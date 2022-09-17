@@ -90,9 +90,8 @@
                     android:id="@+id/adView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    ads:adSize="FULL_BANNER"
-                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766"/>
+                    ads:adSize="BANNER"
+                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766" />
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
