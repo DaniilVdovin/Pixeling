@@ -43,10 +43,12 @@ public class Data {
     public static Bitmap image_processed;
     //Image path after crop
     public static Uri imageUri;
+    //Image path after save
+    public static Uri imageAfterSave;
     //Image path after crop / name image after save ("Pixel_"+image_name+".jpg")
     public static String image_name;
     //Color array
     public static List<PixelData> colors;
-
+    //Thread processing image
     public static AsyncTask<Bitmap, Integer, Bitmap> processing;
 }

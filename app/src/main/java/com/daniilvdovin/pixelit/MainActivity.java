@@ -14,6 +14,7 @@ import static com.daniilvdovin.pixelit.Data._isDebug;
 import static com.daniilvdovin.pixelit.Data._isCanCrop;
 import static com.daniilvdovin.pixelit.Data.colors;
 import static com.daniilvdovin.pixelit.Data.image;
+import static com.daniilvdovin.pixelit.Data.imageAfterSave;
 import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, ColorizeActivity.class));
         });
         save.setOnClickListener(view -> {
-            saveImage();
+            imageAfterSave = saveImage();
         });
         share.setOnClickListener(view -> {
             Share();
@@ -322,6 +323,8 @@ public class MainActivity extends AppCompatActivity {
                 sb_pixelRate.setProgress(1,true);
             else
                 sb_pixelRate.setProgress(1);
+
+            imageAfterSave = null;
             Parameters_ShowHide(image != null);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -474,12 +477,16 @@ public class MainActivity extends AppCompatActivity {
     }
     //Share and save image to another app
     public void Share(){
-        Uri photoFile = saveImage();
-        final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("image/jpg");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, photoFile);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.message));
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_title)));
+        if(imageAfterSave==null) {
+            Toast.makeText(this, R.string.message_savefirst,Toast.LENGTH_LONG).show();
+        }else {
+            Uri photoFile = imageAfterSave;
+            final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/jpg");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, photoFile);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.message));
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_title)));
+        }
     }
     //Request permission
     private ActivityResultLauncher<String> requestPermissionLauncher =
