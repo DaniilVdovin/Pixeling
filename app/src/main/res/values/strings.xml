@@ -19,4 +19,5 @@
     <string name="sww">Something went wrong</string>
     <string name="notfound">Your device is not supporting the crop action</string>
     <string name="original">originally</string>
+    <string name="processed_image">Processed Image</string>
 </resources>

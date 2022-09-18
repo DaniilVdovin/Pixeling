@@ -78,7 +78,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintVertical_bias="0.0"
+                android:contentDescription="@string/processed_image" />
 
             <SeekBar
                 android:id="@+id/sb_pixelRate"
@@ -136,7 +137,7 @@
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:text="@string/d_grid"
-                        tools:ignore="UseSwitchCompatOrMaterialXml" />
+                        tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
 
                     <Switch
                         android:id="@+id/s_dot"
@@ -146,7 +147,7 @@
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:text="@string/d_dot"
-                        tools:ignore="UseSwitchCompatOrMaterialXml" />
+                        tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                 </TableRow>
 
                 <TableRow
@@ -163,7 +164,7 @@
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:text="@string/d_gray"
-                        tools:ignore="UseSwitchCompatOrMaterialXml" />
+                        tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
 
                     <Switch
                         android:id="@+id/s_filter"
@@ -173,7 +174,7 @@
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:text="@string/filter"
-                        tools:ignore="UseSwitchCompatOrMaterialXml" />
+                        tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                 </TableRow>
 
                 <TableRow
@@ -200,10 +201,6 @@
                         android:layout_weight="1"
                         android:text="@string/i_s" />
                 </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
 
             </TableLayout>
 
@@ -264,7 +261,9 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_weight="1"
-                android:text="@string/save" />
+                android:text="@string/save"
+                android:textColor="#263238"
+                tools:ignore="TextContrastCheck" />
 
             <Button
                 android:id="@+id/b_share"
@@ -273,6 +272,7 @@
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="0"
+                android:contentDescription="@string/b_share"
                 app:icon="@android:drawable/ic_menu_share"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />

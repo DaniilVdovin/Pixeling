@@ -20,4 +20,5 @@
     <string name="sww">Что-то пошло не так</string>
     <string name="notfound">Ваше устройство не поодерживвает кадрирование</string>
     <string name="original">оригинал</string>
+    <string name="processed_image">Processed Image</string>
 </resources>
