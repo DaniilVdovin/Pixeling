@@ -119,9 +119,11 @@ public class MainActivity extends AppCompatActivity {
         t_pixelRate = findViewById(R.id.t_pixel_rate);
         progressBar = findViewById(R.id.progressBar);
         AdFrame = findViewById(R.id.AdFrame);
+        imagepicker.setVisibility(View.VISIBLE);
         //UI PreSetup9
         if(image==null) {
             _isGalleryOpen = false;
+            imagepicker.setVisibility(View.GONE);
             imagepicker.setEnabled(false);
             imageView.setEnabled(false);
             progressBar.setVisibility(View.GONE);
