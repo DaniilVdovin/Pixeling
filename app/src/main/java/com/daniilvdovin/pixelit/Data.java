@@ -10,6 +10,7 @@ import java.util.List;
 
 //Static data class
 public class Data {
+    //User changed
     //Dots on image
     public static boolean _isDots = false;
     //Grid on image
@@ -18,16 +19,18 @@ public class Data {
     public static boolean _isGray = false;
     //Filter image (blurring)
     public static boolean _isFilter = false;
+    //System parameters
     //Scan color by pixels
     public static boolean _isScanColor = false;
     //Google Ads switch
     public static boolean _isGoogleAds = true;
     //Google Ads Debug Device
-    public static boolean _isGoogleAds_DebugDevice =true;
+    public static boolean _isGoogleAds_DebugDevice =false;
     //Debug logs
     public static boolean _isDebug =false;
     //Can crop when load image
     public static boolean _isCanCrop = false;
+
     //Upscale image on Scale Size
     public static  int ScaleSize = 30;
     //Pixel size PixelRate/PixelRate
