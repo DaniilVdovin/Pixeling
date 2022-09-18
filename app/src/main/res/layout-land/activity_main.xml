@@ -86,12 +86,15 @@
                 app:cardPreventCornerOverlap="true"
                 app:cardUseCompatPadding="true">
 
-                <com.google.android.gms.ads.AdView
-                    android:id="@+id/adView"
-                    android:layout_width="match_parent"
+                <com.google.android.gms.ads.admanager.AdManagerAdView
+                    android:id="@+id/adManagerAdView"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    ads:adSize="BANNER"
-                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766" />
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    ads:adSize="FULL_BANNER"
+                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766">
+                </com.google.android.gms.ads.admanager.AdManagerAdView>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView

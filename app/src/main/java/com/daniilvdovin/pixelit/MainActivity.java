@@ -57,6 +57,9 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.admanager.AdManagerAdRequest;
+import com.google.android.gms.ads.admanager.AdManagerAdView;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
@@ -64,6 +67,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.LongFunction;
 
@@ -125,32 +129,37 @@ public class MainActivity extends AppCompatActivity {
         AdFrame.setVisibility(View.GONE);
         //Google Ads
         if(_isGoogleAds) {
-            MobileAds.initialize(this, initializationStatus -> {
-                if(_isDebug)Log.e("ADS","Initialization Complete");
+            MobileAds.initialize(this, view->{
+                if(_isDebug)Log.e("ADS","Ad Initialize");
             });
-            AdView mAdView = findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-            mAdView.setAdListener(new AdListener() {
+            if(_isDebug){
+                RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("70F94B3F952979B29EA2674BF7D27490")).build();
+                MobileAds.setRequestConfiguration(configuration);
+            }
+            AdManagerAdView adView = findViewById(R.id.adManagerAdView);
+            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+            adView.loadAd(adRequest);
+            if(_isDebug && adRequest.isTestDevice(this))Log.e("ADS","Load On Test Devices");
+            adView.setAdListener(new AdListener() {
                 @Override
                 public void onAdClosed() {
                     super.onAdClosed();
-                    AdFrame.setVisibility(View.GONE);
                     if(_isDebug)Log.e("ADS","Ad Closed");
+                    AdFrame.setVisibility(View.GONE);
                 }
 
                 @Override
                 public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                     super.onAdFailedToLoad(loadAdError);
-                    AdFrame.setVisibility(View.GONE);
                     if(_isDebug)Log.e("ADS","Ad Failed To Load");
+                    AdFrame.setVisibility(View.GONE);
                 }
 
                 @Override
                 public void onAdLoaded() {
                     super.onAdLoaded();
-                    AdFrame.setVisibility(View.VISIBLE);
                     if(_isDebug)Log.e("ADS","Ad Loaded");
+                    AdFrame.setVisibility(View.VISIBLE);
                 }
             });
         }

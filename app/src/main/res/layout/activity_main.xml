@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
     <androidx.cardview.widget.CardView
@@ -20,12 +21,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:layout_width="match_parent"
+        <com.google.android.gms.ads.admanager.AdManagerAdView
+            android:id="@+id/adManagerAdView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-3688869810838809/9160148766"/>
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            ads:adSize="FULL_BANNER"
+            ads:adUnitId="ca-app-pub-3688869810838809/9160148766"></com.google.android.gms.ads.admanager.AdManagerAdView>
+        <!--
+        test ca-app-pub-3940256099942544/6300978111
+
+        my   ca-app-pub-3688869810838809/9160148766"-->
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -127,7 +134,8 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="@string/d_grid" />
+                        android:text="@string/d_grid"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                     <Switch
                         android:id="@+id/s_dot"
@@ -136,7 +144,8 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="@string/d_dot" />
+                        android:text="@string/d_dot"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
                 </TableRow>
 
                 <TableRow
@@ -152,7 +161,8 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="@string/d_gray" />
+                        android:text="@string/d_gray"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                     <Switch
                         android:id="@+id/s_filter"
@@ -161,7 +171,8 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="@string/filter" />
+                        android:text="@string/filter"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
                 </TableRow>
 
                 <TableRow
