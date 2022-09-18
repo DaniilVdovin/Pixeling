@@ -4,6 +4,7 @@ import static com.daniilvdovin.pixelit.Data.PixelRate;
 import static com.daniilvdovin.pixelit.Data.ScaleSize;
 import static com.daniilvdovin.pixelit.Data._isDots;
 import static com.daniilvdovin.pixelit.Data._isFilter;
+import static com.daniilvdovin.pixelit.Data._isGalleryOpen;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
@@ -102,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
-
         //Init UI
         imageView = findViewById(R.id.imageView);
         reset = findViewById(R.id.b_reset);
@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         AdFrame = findViewById(R.id.AdFrame);
         //UI PreSetup9
         if(image==null) {
+            _isGalleryOpen = false;
             imagepicker.setEnabled(false);
             imageView.setEnabled(false);
             progressBar.setVisibility(View.GONE);
@@ -183,7 +184,10 @@ public class MainActivity extends AppCompatActivity {
 
         //Image Load
         View.OnClickListener ip = (v) -> {
-            startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+            if(!_isGalleryOpen) {
+                startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+                _isGalleryOpen = true;
+            }
         };
         imagepicker.setOnClickListener(ip);
         imageView.setOnClickListener(ip);
@@ -294,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,
                     R.string.dont_select_image,
                     Toast.LENGTH_LONG).show();
+            _isGalleryOpen = false;
         }
     }
     //Load image from intent data
@@ -319,6 +324,7 @@ public class MainActivity extends AppCompatActivity {
                     R.string.sww,
                     Toast.LENGTH_LONG).show();
         }
+        _isGalleryOpen = false;
     }
     public static Bitmap cropBitmap(Bitmap bitmap, int startX, int endX, int startY, int endY) {
         if(_isDebug) Log.e("CROP",(endX - startX)+"x"+(endY - startY));

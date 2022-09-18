@@ -30,7 +30,8 @@ public class Data {
     public static boolean _isDebug =false;
     //Can crop when load image
     public static boolean _isCanCrop = false;
-
+    //Gallery open now
+    public static boolean _isGalleryOpen = false;
     //Upscale image on Scale Size
     public static  int ScaleSize = 30;
     //Pixel size PixelRate/PixelRate
