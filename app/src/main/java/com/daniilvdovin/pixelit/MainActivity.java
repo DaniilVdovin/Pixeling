@@ -17,6 +17,7 @@ import static com.daniilvdovin.pixelit.Data.image;
 import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
+import static com.daniilvdovin.pixelit.Data.processing;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -120,14 +121,14 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         AdFrame = findViewById(R.id.AdFrame);
         imagepicker.setVisibility(View.VISIBLE);
-        //UI PreSetup9
+        //UI PreSetup
         if(image==null) {
             _isGalleryOpen = false;
-            imagepicker.setVisibility(View.GONE);
             imagepicker.setEnabled(false);
             imageView.setEnabled(false);
             progressBar.setVisibility(View.GONE);
         }else{
+            imagepicker.setVisibility(View.GONE);
             refreshImage(image);
         }
         AdFrame.setVisibility(View.GONE);
@@ -228,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(i==0){
+                    progressBar.setVisibility(View.GONE);
+                    if(processing != null) processing.cancel(true);
                     imageView.setImageBitmap(image);
                     Parameters_ShowHide(false);
                     sb_pixelRate.setEnabled(true);
@@ -358,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
         return res;
     }
     //Processing image with parameters
-    @SuppressLint({"SetTextI18n", "DefaultLocale"})
+    @SuppressLint({"SetTextI18n", "DefaultLocale", "StaticFieldLeak"})
     Bitmap pixelit_b(Bitmap bitmap){
         if(bitmap==null)return null;
         if(_isScanColor) {
@@ -389,8 +392,8 @@ public class MainActivity extends AppCompatActivity {
             };
             scancolor.execute(bitmap);
         }
-        @SuppressLint("StaticFieldLeak")
-        AsyncTask<Bitmap, Integer, Bitmap> ppro = new AsyncTask<Bitmap, Integer, Bitmap>(){
+        if(processing != null) processing.cancel(true);
+        processing = new AsyncTask<Bitmap, Integer, Bitmap>(){
             Bitmap bitmap;
             @Override
             protected Bitmap doInBackground(Bitmap... bitmaps) {
@@ -444,7 +447,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         //Start thread processing
-        ppro.execute(bitmap);
+        processing.execute(bitmap);
         return image_processed;
     }
     //Image to grayscale

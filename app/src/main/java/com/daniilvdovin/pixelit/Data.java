@@ -3,6 +3,7 @@ package com.daniilvdovin.pixelit;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 
 import com.daniilvdovin.pixelit.colorize.PixelData;
 
@@ -46,4 +47,6 @@ public class Data {
     public static String image_name;
     //Color array
     public static List<PixelData> colors;
+
+    public static AsyncTask<Bitmap, Integer, Bitmap> processing;
 }
