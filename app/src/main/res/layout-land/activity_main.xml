@@ -22,7 +22,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:cardCornerRadius="6dp"
-            app:cardElevation="6dp"
+            app:cardElevation="3dp"
             app:cardPreventCornerOverlap="true"
             app:cardUseCompatPadding="true">
 
@@ -49,7 +49,7 @@
                     android:id="@+id/imageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:scaleType="fitXY"
+                    android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -103,10 +103,10 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 app:cardCornerRadius="6dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardPreventCornerOverlap="true"
                 app:cardUseCompatPadding="true"
-                app:contentPadding="8dp">
+                app:contentPadding="4dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -168,7 +168,8 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
-                                android:text="@string/d_grid" />
+                                android:text="@string/d_grid"
+                                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                             <Switch
                                 android:id="@+id/s_dot"
@@ -177,7 +178,8 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
-                                android:text="@string/d_dot" />
+                                android:text="@string/d_dot"
+                                tools:ignore="UseSwitchCompatOrMaterialXml" />
                         </TableRow>
 
                         <TableRow
@@ -193,7 +195,8 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
-                                android:text="@string/d_gray" />
+                                android:text="@string/d_gray"
+                                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                             <Switch
                                 android:id="@+id/s_filter"
@@ -202,7 +205,8 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
-                                android:text="@string/filter" />
+                                android:text="@string/filter"
+                                tools:ignore="UseSwitchCompatOrMaterialXml" />
                         </TableRow>
 
                         <TableRow
@@ -246,10 +250,10 @@
                 android:layout_height="80dp"
                 android:layout_weight="0"
                 app:cardCornerRadius="6dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardPreventCornerOverlap="true"
                 app:cardUseCompatPadding="true"
-                app:contentPadding="8dp">
+                app:contentPadding="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -283,7 +287,7 @@
                         style="@style/Theme.CButton.Green"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
-                        android:layout_marginRight="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="0"
                         app:icon="@android:drawable/ic_menu_share"
                         app:iconGravity="textStart"

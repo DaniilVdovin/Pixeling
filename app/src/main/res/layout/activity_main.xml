@@ -10,9 +10,10 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/AdFrame"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="0"
+        android:foregroundGravity="center"
         app:cardCornerRadius="6dp"
         app:cardElevation="6dp"
         app:cardPreventCornerOverlap="true"
@@ -28,7 +29,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             ads:adSize="FULL_BANNER"
-            ads:adUnitId="ca-app-pub-3688869810838809/9160148766"></com.google.android.gms.ads.admanager.AdManagerAdView>
+            ads:adUnitId="ca-app-pub-3688869810838809/9160148766"/>
         <!--
         test ca-app-pub-3940256099942544/6300978111
 
@@ -270,7 +271,7 @@
                 style="@style/Theme.CButton.Green"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="0"
                 app:icon="@android:drawable/ic_menu_share"
                 app:iconGravity="textStart"

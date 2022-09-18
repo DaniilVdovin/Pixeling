@@ -4,6 +4,7 @@ import static com.daniilvdovin.pixelit.Data.PixelRate;
 import static com.daniilvdovin.pixelit.Data.ScaleSize;
 import static com.daniilvdovin.pixelit.Data._isDots;
 import static com.daniilvdovin.pixelit.Data._isFilter;
+import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             MobileAds.initialize(this, view->{
                 if(_isDebug)Log.e("ADS","Ad Initialize");
             });
-            if(_isDebug){
+            if(_isGoogleAds_DebugDevice){
                 RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("70F94B3F952979B29EA2674BF7D27490")).build();
                 MobileAds.setRequestConfiguration(configuration);
             }
