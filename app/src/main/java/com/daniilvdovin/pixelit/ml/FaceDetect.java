@@ -2,9 +2,11 @@ package com.daniilvdovin.pixelit.ml;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -72,20 +74,25 @@ public class FaceDetect {
             Rect bounds = face.getBoundingBox();
             float rotY = face.getHeadEulerAngleY();  // Head is rotated to the right rotY degrees
             float rotZ = face.getHeadEulerAngleZ();  // Head is tilted sideways rotZ degrees
-            Bitmap tempBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+            Bitmap tempBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(tempBitmap);
             Paint p = new Paint();
-            p.setStyle(Paint.Style.STROKE);
-            p.setColor(Color.GREEN);
-            canvas.drawRect(bounds, p);
+            p.setStyle(Paint.Style.FILL_AND_STROKE);
+            p.setColor(Color.WHITE);
+            //canvas.drawRect(bounds, p);
 
             List<PointF> faceOvel = Objects.requireNonNull(face.getContour(FaceContour.FACE)).getPoints();
-            for (int i = 1; i < faceOvel.size(); i++) {
-                PointF pfs = faceOvel.get(i-1);
+            Path polyFace = new Path();
+            PointF pfs = faceOvel.get(0);
+            polyFace.moveTo(pfs.x,pfs.y);
+            for (int i = 0; i < faceOvel.size(); i++) {
                 PointF pff = faceOvel.get(i);
-                canvas.drawLine(pfs.x,pfs.y,pff.x,pff.y,p);
+                polyFace.lineTo(pff.x,pff.y);
             }
-            canvas.drawLine(faceOvel.get(0).x,faceOvel.get(0).y,faceOvel.get(faceOvel.size()-1).x,faceOvel.get(faceOvel.size()-1).y,p);
+            polyFace.lineTo(pfs.x,pfs.y);
+            canvas.drawPath(polyFace,p);
+            //canvas.drawLine(faceOvel.get(0).x,faceOvel.get(0).y,faceOvel.get(faceOvel.size()-1).x,faceOvel.get(faceOvel.size()-1).y,p);
+
             // If face tracking was enabled:
             if (face.getTrackingId() != null) {
                 int id = face.getTrackingId();

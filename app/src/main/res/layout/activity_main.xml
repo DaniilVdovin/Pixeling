@@ -183,6 +183,33 @@
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp">
 
+                    <Switch
+                        android:id="@+id/s_ml_face_detector"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="Face Detecter"
+                        tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+
+                    <Switch
+                        android:id="@+id/s_ml_face_detector_invert"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="Invert mask"
+                        tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
                     <TextView
                         android:id="@+id/t_pixelSize"
                         android:layout_width="wrap_content"

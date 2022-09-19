@@ -8,6 +8,7 @@ import static com.daniilvdovin.pixelit.Data._isGalleryOpen;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
+import static com.daniilvdovin.pixelit.Data._isML_FaceDetected;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds;
 import static com.daniilvdovin.pixelit.Data._isDebug;
@@ -39,6 +40,8 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -92,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     //UI-Parameters
     @SuppressLint("UseSwitchCompatOrMaterialCode")
-    Switch s_grid,s_gray,s_dot,s_filter;
+    Switch s_grid,s_gray,s_dot,s_filter,
+            s_ml_face,s_ml_face_invert;
     SeekBar sb_pixelRate;
     //UI-Text
     TextView t_pixelSize,t_imageSize,t_pixelRate;
@@ -117,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
         s_grid = findViewById(R.id.s_grid);
         s_dot = findViewById(R.id.s_dot);
         s_filter = findViewById(R.id.s_filter);
+        s_ml_face = findViewById(R.id.s_ml_face_detector);
+        s_ml_face_invert = findViewById(R.id.s_ml_face_detector_invert);
         sb_pixelRate = findViewById(R.id.sb_pixelRate);
         t_pixelSize = findViewById(R.id.t_pixelSize);
         t_imageSize = findViewById(R.id.t_ImageSize);
@@ -226,6 +232,17 @@ public class MainActivity extends AppCompatActivity {
             _isFilter = s_filter.isChecked();
             refreshImage(image);
         });
+        s_ml_face.setOnClickListener(view -> {
+            _isML_FaceDetected = s_ml_face.isChecked();
+            Parameters_ShowHide(!_isML_FaceDetected);
+            s_ml_face.setEnabled(true);
+            sb_pixelRate.setEnabled(true);
+            s_filter.setEnabled(true);
+            refreshImage(image);
+        });
+        s_ml_face_invert.setOnClickListener(view -> {
+
+        });
         //UI-Logic-SeekBar
         sb_pixelRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @SuppressLint("SetTextI18n")
@@ -241,7 +258,14 @@ public class MainActivity extends AppCompatActivity {
                     t_pixelSize.setText(getText(R.string.p_s)+"\n"+ 1+"x"+1);
                     return;
                 }else{
-                    Parameters_ShowHide(true);
+                    if(!_isML_FaceDetected)
+                        Parameters_ShowHide(true);
+                    else {
+                        Parameters_ShowHide(false);
+                        s_ml_face.setEnabled(true);
+                        sb_pixelRate.setEnabled(true);
+                        s_filter.setEnabled(true);
+                    }
                 }
                 ScaleSize = SCALESIZE;///(i>4?4:i);
                 if(_isDebug)Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
@@ -266,6 +290,9 @@ public class MainActivity extends AppCompatActivity {
         s_dot.setEnabled(_is);
         s_filter.setEnabled(_is);
         sb_pixelRate.setEnabled(_is);
+
+        s_ml_face.setEnabled(_is);
+        s_ml_face_invert.setEnabled(!_is);
     }
     //Update image in ImageView
     void refreshImage(Bitmap image){
@@ -406,7 +433,8 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
                 bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
 
-                bitmap = getResult(MainActivity.this,image);
+
+
                 //Display Grid on image
                 if(_isGrid){
                     for (int i = 0; i < bitmap.getWidth(); i++) {
@@ -432,6 +460,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
+                //ML Face target
+                if(_isML_FaceDetected) bitmap = Masked(bitmap);
                 //Transfer image to grayscale
                 if(_isGray)
                     bitmap = toGrayscale(bitmap);
@@ -456,6 +486,26 @@ public class MainActivity extends AppCompatActivity {
         //Start thread processing
         processing.execute(bitmap);
         return image_processed;
+    }
+    public Bitmap Masked(Bitmap bitmap) {
+        Bitmap mask = getResult(MainActivity.this,image);
+        //You can change original image here and draw anything you want to be masked on it.
+        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(result);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        tempCanvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, mask.getWidth(), mask.getHeight(),false),0,0,new Paint());
+        tempCanvas.drawBitmap(mask, 0, 0, paint);
+        paint.setXfermode(null);
+
+        result = Bitmap.createScaledBitmap(result, PixelRate,PixelRate,false);
+        result = Bitmap.createScaledBitmap(result,mask.getWidth(), mask.getHeight(),_isFilter);
+        //Draw result after performing masking
+        Bitmap temp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(temp);
+        canvas.drawBitmap(image, 0,0,new Paint());
+        canvas.drawBitmap(result, 0, 0, new Paint());
+        return temp;
     }
     //Image to grayscale
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {
