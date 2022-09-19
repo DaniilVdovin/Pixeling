@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         AdFrame = findViewById(R.id.AdFrame);
         imagepicker.setVisibility(View.VISIBLE);
+        s_ml_face_invert.setVisibility(View.INVISIBLE);
         //UI PreSetup
         if(image==null) {
             _isGalleryOpen = false;
@@ -234,10 +235,14 @@ public class MainActivity extends AppCompatActivity {
         });
         s_ml_face.setOnClickListener(view -> {
             _isML_FaceDetected = s_ml_face.isChecked();
-            Parameters_ShowHide(!_isML_FaceDetected);
-            s_ml_face.setEnabled(true);
-            sb_pixelRate.setEnabled(true);
-            s_filter.setEnabled(true);
+            Parameters_ShowHide(true);
+            if(_isML_FaceDetected){
+                _isDots = false;
+                _isGrid = false;
+            }else{
+                _isDots = s_dot.isChecked();
+                _isGrid = s_grid.isChecked();
+            }
             refreshImage(image);
         });
         s_ml_face_invert.setOnClickListener(view -> {
@@ -258,14 +263,7 @@ public class MainActivity extends AppCompatActivity {
                     t_pixelSize.setText(getText(R.string.p_s)+"\n"+ 1+"x"+1);
                     return;
                 }else{
-                    if(!_isML_FaceDetected)
-                        Parameters_ShowHide(true);
-                    else {
-                        Parameters_ShowHide(false);
-                        s_ml_face.setEnabled(true);
-                        sb_pixelRate.setEnabled(true);
-                        s_filter.setEnabled(true);
-                    }
+                    Parameters_ShowHide(true);
                 }
                 ScaleSize = SCALESIZE;///(i>4?4:i);
                 if(_isDebug)Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
@@ -286,13 +284,19 @@ public class MainActivity extends AppCompatActivity {
         save.setEnabled(_is);
         share.setEnabled(_is);
         s_gray.setEnabled(_is);
-        s_grid.setEnabled(_is);
-        s_dot.setEnabled(_is);
+        if(_isML_FaceDetected)
+        {
+            s_grid.setEnabled(false);
+            s_dot.setEnabled(false);
+        }else {
+            s_grid.setEnabled(_is);
+            s_dot.setEnabled(_is);
+        }
         s_filter.setEnabled(_is);
         sb_pixelRate.setEnabled(_is);
-
         s_ml_face.setEnabled(_is);
-        s_ml_face_invert.setEnabled(!_is);
+        s_ml_face_invert.setEnabled(_is);
+
     }
     //Update image in ImageView
     void refreshImage(Bitmap image){
