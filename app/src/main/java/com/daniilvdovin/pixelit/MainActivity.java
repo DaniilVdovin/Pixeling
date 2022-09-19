@@ -60,6 +60,7 @@ import android.widget.Toast;
 
 import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
+import com.daniilvdovin.pixelit.ml.FaceDetect;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -78,6 +79,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.LongFunction;
 
 public class MainActivity extends AppCompatActivity {
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
+        FaceDetect.Activate();
+
         //Init UI
         imageView = findViewById(R.id.imageView);
         reset = findViewById(R.id.b_reset);
@@ -139,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
         }else{
             imagepicker.setVisibility(View.GONE);
-            refreshImage(image);
+            LoadProcessedImage();
         }
         AdFrame.setVisibility(View.GONE);
         //Google Ads
@@ -235,15 +239,22 @@ public class MainActivity extends AppCompatActivity {
         });
         s_ml_face.setOnClickListener(view -> {
             _isML_FaceDetected = s_ml_face.isChecked();
-            Parameters_ShowHide(true);
-            if(_isML_FaceDetected){
-                _isDots = false;
-                _isGrid = false;
-            }else{
-                _isDots = s_dot.isChecked();
-                _isGrid = s_grid.isChecked();
+            if(FaceDetect.resultBitmap==null) {
+                Toast.makeText(MainActivity.this, "Face not detected", Toast.LENGTH_SHORT).show();
+                _isML_FaceDetected = false;
+                s_ml_face.setChecked(false);
+            }else {
+                Toast.makeText(MainActivity.this, "Face detected", Toast.LENGTH_SHORT).show();
+                Parameters_ShowHide(true);
+                if(_isML_FaceDetected){
+                    _isDots = false;
+                    _isGrid = false;
+                }else{
+                    _isDots = s_dot.isChecked();
+                    _isGrid = s_grid.isChecked();
+                }
+                refreshImage(image);
             }
-            refreshImage(image);
         });
         s_ml_face_invert.setOnClickListener(view -> {
 
@@ -298,8 +309,11 @@ public class MainActivity extends AppCompatActivity {
         s_ml_face_invert.setEnabled(_is);
 
     }
+    public void LoadProcessedImage(){
+        imageView.setImageBitmap(image_processed);
+    }
     //Update image in ImageView
-    void refreshImage(Bitmap image){
+    public void refreshImage(Bitmap image){
         imageView.setImageBitmap(pixelit_b(image));
     }
     //Get Image from Gallery
@@ -322,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
                             loadBitmapFromIntent(data);
                             startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
                         }catch (ActivityNotFoundException e){
-                            Toast.makeText(this, R.string.notfound, Toast.LENGTH_SHORT);
+                            Toast.makeText(this, R.string.notfound, Toast.LENGTH_SHORT).show();
                             loadBitmapFromIntent(data);
                         }
                         break;
@@ -333,6 +347,8 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 loadBitmapFromIntent(data);
             }
+            FaceDetect.resultBitmap = null;
+            FaceDetect.getResult(this,image);
         }else {
             Toast.makeText(this,
                     R.string.dont_select_image,
@@ -356,7 +372,6 @@ public class MainActivity extends AppCompatActivity {
                 sb_pixelRate.setProgress(1,true);
             else
                 sb_pixelRate.setProgress(1);
-
             imageAfterSave = null;
             Parameters_ShowHide(image != null);
         } catch (FileNotFoundException e) {
@@ -397,8 +412,8 @@ public class MainActivity extends AppCompatActivity {
         return res;
     }
     //Processing image with parameters
-    @SuppressLint({"SetTextI18n", "DefaultLocale", "StaticFieldLeak"})
-    Bitmap pixelit_b(Bitmap bitmap){
+    @SuppressLint("StaticFieldLeak")
+    public Bitmap pixelit_b(Bitmap bitmap){
         if(bitmap==null)return null;
         if(_isScanColor) {
             //Scan color on original image after pixelate
@@ -437,8 +452,6 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
                 bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
 
-
-
                 //Display Grid on image
                 if(_isGrid){
                     for (int i = 0; i < bitmap.getWidth(); i++) {
@@ -465,7 +478,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 //ML Face target
-                if(_isML_FaceDetected) bitmap = Masked(bitmap);
+                if(_isML_FaceDetected){
+                    bitmap = Masked(bitmap);
+                }
                 //Transfer image to grayscale
                 if(_isGray)
                     bitmap = toGrayscale(bitmap);
@@ -480,19 +495,23 @@ public class MainActivity extends AppCompatActivity {
             //Hide progress bar when processing complete and set data to UI
             @Override
             protected void onPostExecute(Bitmap bitmap) {
-                image_processed = bitmap;
-                progressBar.setVisibility(View.GONE);
-                imageView.setImageBitmap(image_processed);
-                t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
-                save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
+                postImageFromThread(bitmap);
             }
         };
         //Start thread processing
         processing.execute(bitmap);
         return image_processed;
     }
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
+    void postImageFromThread(Bitmap bitmap){
+        image_processed = bitmap;
+        progressBar.setVisibility(View.GONE);
+        LoadProcessedImage();
+        t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
+        save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
+    }
     public Bitmap Masked(Bitmap bitmap) {
-        Bitmap mask = getResult(MainActivity.this,image);
+        Bitmap mask = getResult(this,image);
         //You can change original image here and draw anything you want to be masked on it.
         Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas tempCanvas = new Canvas(result);
