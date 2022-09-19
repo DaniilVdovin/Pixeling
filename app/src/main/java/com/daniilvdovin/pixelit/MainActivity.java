@@ -19,6 +19,8 @@ import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
 import static com.daniilvdovin.pixelit.Data.processing;
+import static com.daniilvdovin.pixelit.ml.FaceDetect.getResult;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -403,6 +405,8 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = bitmaps[0];
                 bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
                 bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
+
+                bitmap = getResult(MainActivity.this,image);
                 //Display Grid on image
                 if(_isGrid){
                     for (int i = 0; i < bitmap.getWidth(); i++) {
