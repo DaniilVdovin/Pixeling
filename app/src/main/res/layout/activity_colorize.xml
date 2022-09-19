@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                app:cardBackgroundColor="#9D9D9D"
+                app:cardBackgroundColor="@color/cardview_light_background"
                 app:cardCornerRadius="6dp"
                 app:cardElevation="6dp"
                 app:cardUseCompatPadding="true">
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                app:cardBackgroundColor="#B9B8B8"
+                app:cardBackgroundColor="@color/cardview_light_background"
                 app:cardCornerRadius="6dp"
                 app:cardElevation="6dp"
                 app:cardPreventCornerOverlap="true"
