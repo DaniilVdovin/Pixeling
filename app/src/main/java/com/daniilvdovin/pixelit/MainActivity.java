@@ -21,6 +21,7 @@ import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
 import static com.daniilvdovin.pixelit.Data.processing;
 import static com.daniilvdovin.pixelit.ml.FaceDetect.getResult;
+import static com.daniilvdovin.pixelit.ml.FaceDetect.resultBitmap;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -511,7 +512,8 @@ public class MainActivity extends AppCompatActivity {
         save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
     }
     public Bitmap Masked(Bitmap bitmap) {
-        Bitmap mask = getResult(this,image);
+        if(resultBitmap==null)return bitmap;
+        Bitmap mask = FaceDetect.resultBitmap;
         //You can change original image here and draw anything you want to be masked on it.
         Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas tempCanvas = new Canvas(result);

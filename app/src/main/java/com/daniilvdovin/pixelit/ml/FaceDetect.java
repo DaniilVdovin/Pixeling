@@ -34,7 +34,6 @@ public class FaceDetect {
                         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                         .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
                         .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-                        .setMinFaceSize(0.15f)
                         .enableTracking()
                         .build();
         detector = FaceDetection.getClient(options);
@@ -64,7 +63,12 @@ public class FaceDetect {
         }
     }
     static Bitmap processFaceList(List<Face> faces,Bitmap bitmap) {
+        if(faces.size()==0)return bitmap;
+        Log.e("ML","Faces: "+faces.size());
         for (Face face : faces) {
+            //TODO: See only 1 face
+            if(face==null)break;
+            if(face.getAllContours().size()==0)break;
             Bitmap tempBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(tempBitmap);
             Paint p = new Paint();
@@ -80,9 +84,10 @@ public class FaceDetect {
             }
             polyFace.lineTo(pfs.x,pfs.y);
             canvas.drawPath(polyFace,p);
-            Log.e("ML","Face processed Success");
             resultBitmap = tempBitmap;
+            Log.e("ML","Face processed Success");
         }
+
         return resultBitmap;
     }
 }
