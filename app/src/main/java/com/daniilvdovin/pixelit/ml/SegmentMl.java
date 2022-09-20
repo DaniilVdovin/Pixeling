@@ -45,7 +45,8 @@ public class SegmentMl {
                                             // Gets the confidence of the (x,y) pixel in the mask being in the foreground.
                                             float foregroundConfidence = maskb.getFloat();
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                resultBitmap.setPixel(x,y,Color.argb(foregroundConfidence<1f?1f:0f,1f,1f,1f));
+                                                float al = (foregroundConfidence<1f?1f:0f);
+                                                resultBitmap.setPixel(x,y,Color.argb(al,1f,1f,1f));
                                             }
                                         }
                                     }

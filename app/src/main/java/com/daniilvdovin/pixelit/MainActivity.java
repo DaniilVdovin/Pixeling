@@ -9,6 +9,7 @@ import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isML_FaceDetected;
+import static com.daniilvdovin.pixelit.Data._isML_SegmentDetected;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds;
 import static com.daniilvdovin.pixelit.Data._isDebug;
@@ -136,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         AdFrame = findViewById(R.id.AdFrame);
         imagepicker.setVisibility(View.VISIBLE);
-        s_ml_face_invert.setVisibility(View.INVISIBLE);
         //UI PreSetup
         if(image==null) {
             _isGalleryOpen = false;
@@ -259,7 +259,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         s_ml_face_invert.setOnClickListener(view -> {
-
+            _isML_SegmentDetected = s_ml_face_invert.isChecked();
+            if(SegmentMl.resultBitmap==null) {
+                Toast.makeText(MainActivity.this, "Segment not detected", Toast.LENGTH_SHORT).show();
+                _isML_SegmentDetected = false;
+                s_ml_face_invert.setChecked(false);
+            }else {
+                Toast.makeText(MainActivity.this, "Segment detected", Toast.LENGTH_SHORT).show();
+                Parameters_ShowHide(true);
+                if(_isML_SegmentDetected){
+                    _isML_FaceDetected = false;
+                }else{
+                    _isML_FaceDetected = s_ml_face.isChecked();
+                }
+                refreshImage(image);
+            }
         });
         //UI-Logic-SeekBar
         sb_pixelRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -301,14 +315,19 @@ public class MainActivity extends AppCompatActivity {
         {
             s_grid.setEnabled(false);
             s_dot.setEnabled(false);
+            s_ml_face_invert.setEnabled(false);
         }else {
             s_grid.setEnabled(_is);
             s_dot.setEnabled(_is);
+            s_ml_face_invert.setEnabled(_is);
+        }
+        if(_isML_SegmentDetected){
+            s_ml_face.setEnabled(false);
+        }else{
+            s_ml_face.setEnabled(_is);
         }
         s_filter.setEnabled(_is);
         sb_pixelRate.setEnabled(_is);
-        s_ml_face.setEnabled(_is);
-        s_ml_face_invert.setEnabled(_is);
 
     }
     public void LoadProcessedImage(){
@@ -351,6 +370,8 @@ public class MainActivity extends AppCompatActivity {
             }
             FaceDetect.resultBitmap = null;
             FaceDetect.getResult(this,image);
+            SegmentMl.resultBitmap = null;
+            SegmentMl.getResult(MainActivity.this, image);
         }else {
             Toast.makeText(this,
                     R.string.dont_select_image,
@@ -486,8 +507,10 @@ public class MainActivity extends AppCompatActivity {
                 //Transfer image to grayscale
                 if(_isGray)
                     bitmap = toGrayscale(bitmap);
-                Bitmap mask = SegmentMl.getResult(MainActivity.this,image);
-                bitmap = MaskedSegment(bitmap,mask);
+                if(_isML_SegmentDetected) {
+                    Bitmap mask = SegmentMl.getResult(MainActivity.this, image);
+                    bitmap = MaskedSegment(bitmap, mask);
+                }
                 return bitmap;
             }
             //Show progress bar when processing image
