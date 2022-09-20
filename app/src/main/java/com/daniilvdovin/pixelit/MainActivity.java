@@ -62,6 +62,7 @@ import android.widget.Toast;
 import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
 import com.daniilvdovin.pixelit.ml.FaceDetect;
+import com.daniilvdovin.pixelit.ml.SegmentMl;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -485,6 +486,8 @@ public class MainActivity extends AppCompatActivity {
                 //Transfer image to grayscale
                 if(_isGray)
                     bitmap = toGrayscale(bitmap);
+                Bitmap mask = SegmentMl.getResult(MainActivity.this,image);
+                bitmap = MaskedSegment(bitmap,mask);
                 return bitmap;
             }
             //Show progress bar when processing image
@@ -510,6 +513,21 @@ public class MainActivity extends AppCompatActivity {
         LoadProcessedImage();
         t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
         save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
+    }
+    public Bitmap MaskedSegment(Bitmap bitmap,Bitmap mask) {
+        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(result);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        tempCanvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, mask.getWidth(), mask.getHeight(),false),0,0,new Paint());
+        tempCanvas.drawBitmap(mask, 0, 0, paint);
+        paint.setXfermode(null);
+        //Draw result after performing masking
+        Bitmap temp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(temp);
+        canvas.drawBitmap(image, 0,0,new Paint());
+        canvas.drawBitmap(result, 0, 0, new Paint());
+        return temp;
     }
     public Bitmap Masked(Bitmap bitmap) {
         if(resultBitmap==null)return bitmap;
