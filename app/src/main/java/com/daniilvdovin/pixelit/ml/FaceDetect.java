@@ -31,7 +31,7 @@ public class FaceDetect {
     public static void Activate(){
         options=new FaceDetectorOptions.Builder()
                         .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
-                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                         .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
                         .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
                         .enableTracking()
@@ -87,7 +87,6 @@ public class FaceDetect {
             resultBitmap = tempBitmap;
             Log.e("ML","Face processed Success");
         }
-
         return resultBitmap;
     }
 }
