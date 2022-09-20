@@ -23,5 +23,5 @@
     <string name="processed_image">Обрабатываемое изображение</string>
     <string name="message_savefirst">Сначало сохраните изображение</string>
     <string name="ml_face_detecter">Детектор лиц</string>
-    <string name="ml_face_invert">Инвертировать маску</string>
+    <string name="ml_face_invert">Выбрать фон</string>
 </resources>

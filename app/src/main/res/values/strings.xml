@@ -22,5 +22,5 @@
     <string name="processed_image">Processed Image</string>
     <string name="message_savefirst">Save the image first</string>
     <string name="ml_face_detecter">Face detector</string>
-    <string name="ml_face_invert">Invert mask</string>
+    <string name="ml_face_invert">Select background</string>
 </resources>
