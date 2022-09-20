@@ -13,7 +13,7 @@
     <string name="toast_save">Saved!</string>
     <string name="pick_image">Pick image</string>
     <string name="b_share">Share</string>
-    <string name="message">Pixelate It now, download on Google Play</string>
+    <string name="message">Pixelate It, download on Google Play</string>
     <string name="share_title">Share image using</string>
     <string name="dont_select_image">You haven\'t picked Image</string>
     <string name="sww">Something went wrong</string>
@@ -21,4 +21,6 @@
     <string name="original">originally</string>
     <string name="processed_image">Processed Image</string>
     <string name="message_savefirst">Save the image first</string>
+    <string name="ml_face_detecter">Face detector</string>
+    <string name="ml_face_invert">Invert mask</string>
 </resources>

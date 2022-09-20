@@ -190,7 +190,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="Face Detecter"
+                        android:text="@string/ml_face_detecter"
                         tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
 
                     <Switch
@@ -200,7 +200,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="Invert mask"
+                        android:text="@string/ml_face_invert"
                         tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                 </TableRow>
 
