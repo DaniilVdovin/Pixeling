@@ -8,6 +8,8 @@ import static com.daniilvdovin.pixelit.Data._isGalleryOpen;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
+import static com.daniilvdovin.pixelit.Data._isML_FaceDetected;
+import static com.daniilvdovin.pixelit.Data._isML_SegmentDetected;
 import static com.daniilvdovin.pixelit.Data._isScanColor;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds;
 import static com.daniilvdovin.pixelit.Data._isDebug;
@@ -19,6 +21,9 @@ import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
 import static com.daniilvdovin.pixelit.Data.processing;
+import static com.daniilvdovin.pixelit.ml.FaceDetect.getResult;
+import static com.daniilvdovin.pixelit.ml.FaceDetect.resultBitmap;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -37,6 +42,8 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -55,6 +62,8 @@ import android.widget.Toast;
 
 import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
+import com.daniilvdovin.pixelit.ml.FaceDetect;
+import com.daniilvdovin.pixelit.ml.SegmentMl;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -73,6 +82,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.LongFunction;
 
 public class MainActivity extends AppCompatActivity {
@@ -90,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     //UI-Parameters
     @SuppressLint("UseSwitchCompatOrMaterialCode")
-    Switch s_grid,s_gray,s_dot,s_filter;
+    Switch s_grid,s_gray,s_dot,s_filter,
+            s_ml_face,s_ml_face_invert;
     SeekBar sb_pixelRate;
     //UI-Text
     TextView t_pixelSize,t_imageSize,t_pixelRate;
@@ -105,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
+        FaceDetect.Activate();
+
         //Init UI
         imageView = findViewById(R.id.imageView);
         reset = findViewById(R.id.b_reset);
@@ -115,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
         s_grid = findViewById(R.id.s_grid);
         s_dot = findViewById(R.id.s_dot);
         s_filter = findViewById(R.id.s_filter);
+        s_ml_face = findViewById(R.id.s_ml_face_detector);
+        s_ml_face_invert = findViewById(R.id.s_ml_face_detector_invert);
         sb_pixelRate = findViewById(R.id.sb_pixelRate);
         t_pixelSize = findViewById(R.id.t_pixelSize);
         t_imageSize = findViewById(R.id.t_ImageSize);
@@ -130,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
         }else{
             imagepicker.setVisibility(View.GONE);
-            refreshImage(image);
+            LoadProcessedImage();
         }
         AdFrame.setVisibility(View.GONE);
         //Google Ads
@@ -224,6 +239,42 @@ public class MainActivity extends AppCompatActivity {
             _isFilter = s_filter.isChecked();
             refreshImage(image);
         });
+        s_ml_face.setOnClickListener(view -> {
+            _isML_FaceDetected = s_ml_face.isChecked();
+            if(FaceDetect.resultBitmap==null) {
+                Toast.makeText(MainActivity.this, "Face not detected", Toast.LENGTH_SHORT).show();
+                _isML_FaceDetected = false;
+                s_ml_face.setChecked(false);
+            }else {
+                Toast.makeText(MainActivity.this, "Face detected", Toast.LENGTH_SHORT).show();
+                Parameters_ShowHide(true);
+                if(_isML_FaceDetected){
+                    _isDots = false;
+                    _isGrid = false;
+                }else{
+                    _isDots = s_dot.isChecked();
+                    _isGrid = s_grid.isChecked();
+                }
+                refreshImage(image);
+            }
+        });
+        s_ml_face_invert.setOnClickListener(view -> {
+            _isML_SegmentDetected = s_ml_face_invert.isChecked();
+            if(SegmentMl.resultBitmap==null) {
+                Toast.makeText(MainActivity.this, "Segment not detected", Toast.LENGTH_SHORT).show();
+                _isML_SegmentDetected = false;
+                s_ml_face_invert.setChecked(false);
+            }else {
+                Toast.makeText(MainActivity.this, "Segment detected", Toast.LENGTH_SHORT).show();
+                Parameters_ShowHide(true);
+                if(_isML_SegmentDetected){
+                    _isML_FaceDetected = false;
+                }else{
+                    _isML_FaceDetected = s_ml_face.isChecked();
+                }
+                refreshImage(image);
+            }
+        });
         //UI-Logic-SeekBar
         sb_pixelRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @SuppressLint("SetTextI18n")
@@ -260,13 +311,30 @@ public class MainActivity extends AppCompatActivity {
         save.setEnabled(_is);
         share.setEnabled(_is);
         s_gray.setEnabled(_is);
-        s_grid.setEnabled(_is);
-        s_dot.setEnabled(_is);
+        if(_isML_FaceDetected)
+        {
+            s_grid.setEnabled(false);
+            s_dot.setEnabled(false);
+            s_ml_face_invert.setEnabled(false);
+        }else {
+            s_grid.setEnabled(_is);
+            s_dot.setEnabled(_is);
+            s_ml_face_invert.setEnabled(_is);
+        }
+        if(_isML_SegmentDetected){
+            s_ml_face.setEnabled(false);
+        }else{
+            s_ml_face.setEnabled(_is);
+        }
         s_filter.setEnabled(_is);
         sb_pixelRate.setEnabled(_is);
+
+    }
+    public void LoadProcessedImage(){
+        imageView.setImageBitmap(image_processed);
     }
     //Update image in ImageView
-    void refreshImage(Bitmap image){
+    public void refreshImage(Bitmap image){
         imageView.setImageBitmap(pixelit_b(image));
     }
     //Get Image from Gallery
@@ -289,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
                             loadBitmapFromIntent(data);
                             startActivityForResult(photoCropIntent, RESULT_CROP_IMG);
                         }catch (ActivityNotFoundException e){
-                            Toast.makeText(this, R.string.notfound, Toast.LENGTH_SHORT);
+                            Toast.makeText(this, R.string.notfound, Toast.LENGTH_SHORT).show();
                             loadBitmapFromIntent(data);
                         }
                         break;
@@ -300,6 +368,10 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 loadBitmapFromIntent(data);
             }
+            FaceDetect.resultBitmap = null;
+            FaceDetect.getResult(this,image);
+            SegmentMl.resultBitmap = null;
+            SegmentMl.getResult(MainActivity.this, image);
         }else {
             Toast.makeText(this,
                     R.string.dont_select_image,
@@ -323,7 +395,6 @@ public class MainActivity extends AppCompatActivity {
                 sb_pixelRate.setProgress(1,true);
             else
                 sb_pixelRate.setProgress(1);
-
             imageAfterSave = null;
             Parameters_ShowHide(image != null);
         } catch (FileNotFoundException e) {
@@ -364,8 +435,8 @@ public class MainActivity extends AppCompatActivity {
         return res;
     }
     //Processing image with parameters
-    @SuppressLint({"SetTextI18n", "DefaultLocale", "StaticFieldLeak"})
-    Bitmap pixelit_b(Bitmap bitmap){
+    @SuppressLint("StaticFieldLeak")
+    public Bitmap pixelit_b(Bitmap bitmap){
         if(bitmap==null)return null;
         if(_isScanColor) {
             //Scan color on original image after pixelate
@@ -403,6 +474,7 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = bitmaps[0];
                 bitmap = Bitmap.createScaledBitmap(bitmap, PixelRate,PixelRate,false);
                 bitmap = Bitmap.createScaledBitmap(bitmap,(PixelRate*ScaleSize)+1,(PixelRate*ScaleSize)+1,_isFilter);
+
                 //Display Grid on image
                 if(_isGrid){
                     for (int i = 0; i < bitmap.getWidth(); i++) {
@@ -428,9 +500,17 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
+                //ML Face target
+                if(_isML_FaceDetected){
+                    bitmap = Masked(bitmap);
+                }
                 //Transfer image to grayscale
                 if(_isGray)
                     bitmap = toGrayscale(bitmap);
+                if(_isML_SegmentDetected) {
+                    Bitmap mask = SegmentMl.getResult(MainActivity.this, image);
+                    bitmap = MaskedSegment(bitmap, mask);
+                }
                 return bitmap;
             }
             //Show progress bar when processing image
@@ -442,16 +522,56 @@ public class MainActivity extends AppCompatActivity {
             //Hide progress bar when processing complete and set data to UI
             @Override
             protected void onPostExecute(Bitmap bitmap) {
-                image_processed = bitmap;
-                progressBar.setVisibility(View.GONE);
-                imageView.setImageBitmap(image_processed);
-                t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
-                save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
+                postImageFromThread(bitmap);
             }
         };
         //Start thread processing
         processing.execute(bitmap);
         return image_processed;
+    }
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
+    void postImageFromThread(Bitmap bitmap){
+        image_processed = bitmap;
+        progressBar.setVisibility(View.GONE);
+        LoadProcessedImage();
+        t_imageSize.setText(getText(R.string.i_s)+"\n"+bitmap.getWidth()+"x"+bitmap.getHeight());
+        save.setText(getText(R.string.save)+" ±("+ String.format("%.2f", byteSizeOf(bitmap)) +" kb)");
+    }
+    public Bitmap MaskedSegment(Bitmap bitmap,Bitmap mask) {
+        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(result);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        tempCanvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, mask.getWidth(), mask.getHeight(),false),0,0,new Paint());
+        tempCanvas.drawBitmap(mask, 0, 0, paint);
+        paint.setXfermode(null);
+        //Draw result after performing masking
+        Bitmap temp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(temp);
+        canvas.drawBitmap(image, 0,0,new Paint());
+        canvas.drawBitmap(result, 0, 0, new Paint());
+        return temp;
+    }
+    public Bitmap Masked(Bitmap bitmap) {
+        if(resultBitmap==null)return bitmap;
+        Bitmap mask = FaceDetect.resultBitmap;
+        //You can change original image here and draw anything you want to be masked on it.
+        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(result);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        tempCanvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, mask.getWidth(), mask.getHeight(),false),0,0,new Paint());
+        tempCanvas.drawBitmap(mask, 0, 0, paint);
+        paint.setXfermode(null);
+
+        result = Bitmap.createScaledBitmap(result, PixelRate,PixelRate,false);
+        result = Bitmap.createScaledBitmap(result,mask.getWidth(), mask.getHeight(),_isFilter);
+        //Draw result after performing masking
+        Bitmap temp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(temp);
+        canvas.drawBitmap(image, 0,0,new Paint());
+        canvas.drawBitmap(result, 0, 0, new Paint());
+        return temp;
     }
     //Image to grayscale
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {

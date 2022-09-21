@@ -20,6 +20,10 @@ public class Data {
     public static boolean _isGray = false;
     //Filter image (blurring)
     public static boolean _isFilter = false;
+    //ML Face detected
+    public static boolean _isML_FaceDetected = false;
+    //ML Segment detected
+    public static boolean _isML_SegmentDetected = false;
     //System parameters
     //Scan color by pixels
     public static boolean _isScanColor = false;

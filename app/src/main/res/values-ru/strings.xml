@@ -14,7 +14,7 @@
     <string name="toast_save">Сохранено!</string>
     <string name="pick_image">Выберите изображение</string>
     <string name="b_share">Поделиться</string>
-    <string name="message">Pixelate It now, загрузить с Google Play</string>
+    <string name="message">Pixelate It, загрузить с Google Play</string>
     <string name="share_title">Поделиться этим изображением</string>
     <string name="dont_select_image">Вы не выбрали изображение</string>
     <string name="sww">Что-то пошло не так</string>
@@ -22,4 +22,6 @@
     <string name="original">оригинал</string>
     <string name="processed_image">Обрабатываемое изображение</string>
     <string name="message_savefirst">Сначало сохраните изображение</string>
+    <string name="ml_face_detecter">Детектор лиц</string>
+    <string name="ml_face_invert">Выбрать фон</string>
 </resources>
