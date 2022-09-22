@@ -64,8 +64,4 @@ public class SegmentMl {
             return bitmap;
         }
     }
-    public static float clamp(float val, float min, float max) {
-        float result = val > max ? max : val < min ? min : val;
-        return result;
-    }
 }

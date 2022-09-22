@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:baselineAligned="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
@@ -25,12 +26,13 @@
             <androidx.cardview.widget.CardView
                 android:id="@+id/ImageFrame"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
                 app:cardCornerRadius="6dp"
                 app:cardElevation="3dp"
                 app:cardPreventCornerOverlap="true"
-                app:cardUseCompatPadding="true">
+                app:cardUseCompatPadding="true"
+                tools:ignore="NestedWeights">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -59,7 +61,8 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:contentDescription="@string/processed_image"/>
 
                     <ProgressBar
                         android:id="@+id/progressBar"
@@ -88,7 +91,6 @@
                 android:id="@+id/AdFrame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0"
                 app:cardCornerRadius="6dp"
                 app:cardElevation="3dp"
                 app:cardPreventCornerOverlap="true"
@@ -101,7 +103,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     ads:adSize="FULL_BANNER"
-                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766"></com.google.android.gms.ads.admanager.AdManagerAdView>
+                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766"/>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
@@ -113,7 +115,8 @@
                 app:cardElevation="3dp"
                 app:cardPreventCornerOverlap="true"
                 app:cardUseCompatPadding="true"
-                app:contentPadding="4dp">
+                app:contentPadding="4dp"
+                tools:ignore="NestedWeights">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -229,7 +232,7 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
-                                android:text="Face Detecter"
+                                android:text="@string/ml_face_detecter"
                                 tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
 
                             <Switch
@@ -239,7 +242,7 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
-                                android:text="Invert mask"
+                                android:text="@string/ml_face_invert"
                                 tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                         </TableRow>
 
