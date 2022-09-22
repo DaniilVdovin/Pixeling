@@ -60,6 +60,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.daniilvdovin.pixelit.camera.CameraLiveProcessingActivity;
 import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
 import com.daniilvdovin.pixelit.ml.FaceDetect;
@@ -112,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startActivity(new Intent(MainActivity.this, CameraLiveProcessingActivity.class));
 
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
