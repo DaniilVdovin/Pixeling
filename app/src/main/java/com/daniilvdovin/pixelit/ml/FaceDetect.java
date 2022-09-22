@@ -7,11 +7,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.daniilvdovin.pixelit.MainActivity;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceContour;
@@ -25,7 +22,6 @@ import java.util.Objects;
 public class FaceDetect {
 
     public static Bitmap resultBitmap;
-    static MainActivity context;
     static FaceDetectorOptions options;
     static FaceDetector detector;
     public static void Activate(){
@@ -62,8 +58,8 @@ public class FaceDetect {
             return bitmap;
         }
     }
-    static Bitmap processFaceList(List<Face> faces,Bitmap bitmap) {
-        if(faces.size()==0)return bitmap;
+    static void processFaceList(List<Face> faces, Bitmap bitmap) {
+        if(faces.size()==0)return;
         Log.e("ML","Faces: "+faces.size());
         for (Face face : faces) {
             //TODO: See only 1 face
@@ -74,12 +70,12 @@ public class FaceDetect {
             Paint p = new Paint();
             p.setStyle(Paint.Style.FILL_AND_STROKE);
             p.setColor(Color.WHITE);
-            List<PointF> faceOvel = Objects.requireNonNull(face.getContour(FaceContour.FACE)).getPoints();
+            List<PointF> faceOval = Objects.requireNonNull(face.getContour(FaceContour.FACE)).getPoints();
             Path polyFace = new Path();
-            PointF pfs = faceOvel.get(0);
+            PointF pfs = faceOval.get(0);
             polyFace.moveTo(pfs.x,pfs.y);
-            for (int i = 0; i < faceOvel.size(); i++) {
-                PointF pff = faceOvel.get(i);
+            for (int i = 0; i < faceOval.size(); i++) {
+                PointF pff = faceOval.get(i);
                 polyFace.lineTo(pff.x,pff.y);
             }
             polyFace.lineTo(pfs.x,pfs.y);
@@ -87,6 +83,5 @@ public class FaceDetect {
             resultBitmap = tempBitmap;
             Log.e("ML","Face processed Success");
         }
-        return resultBitmap;
     }
 }
