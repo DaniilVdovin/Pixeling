@@ -79,17 +79,15 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-    //TODO: Editor
     //System
     private static final int RESULT_LOAD_IMG = 1;
     private static final int RESULT_CROP_IMG = 2;
-    private static final int SCALESIZE = 60;//50
+    private static final int SCALE_SIZE = 60;//50
     private static final int PIXEL = 8;
     private static final String SHARED_PREFERENCES_NAME = "Setup";
     private static final String FIRST_START = "First_Start";
@@ -97,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     //UI
     ImageView imageView;
-    Button reset,save,imagepicker,share,inst_confirm;
+    Button reset,save, image_picker,share,inst_confirm;
     ProgressBar progressBar;
     //UI-Parameters
     @SuppressLint("UseSwitchCompatOrMaterialCode")
@@ -132,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         //Buttons Instruction Frame
         inst_confirm = findViewById(R.id.Instruction_complite);
         //Image Picker Button
-        imagepicker = findViewById(R.id.b_imagepick);
+        image_picker = findViewById(R.id.b_imagepick);
         //Controllers
         s_gray = findViewById(R.id.s_gray);
         s_grid = findViewById(R.id.s_grid);
@@ -155,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         InstructionCard = findViewById(R.id.Instruction_card);
 
         //UI PreSetup
-        imagepicker.setVisibility(View.VISIBLE);
+        image_picker.setVisibility(View.VISIBLE);
         if(_isFirstStart){
             MainFrame.setVisibility(View.GONE);
             ToolFrame.setVisibility(View.GONE);
@@ -164,11 +162,11 @@ public class MainActivity extends AppCompatActivity {
         }
         if(image==null) {
             _isGalleryOpen = false;
-            imagepicker.setEnabled(false);
+            image_picker.setEnabled(false);
             imageView.setEnabled(false);
             progressBar.setVisibility(View.GONE);
         }else{
-            imagepicker.setVisibility(View.GONE);
+            image_picker.setVisibility(View.GONE);
             LoadProcessedImage();
         }
 
@@ -222,10 +220,10 @@ public class MainActivity extends AppCompatActivity {
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                 PackageManager.PERMISSION_GRANTED) {
             imageView.setEnabled(true);
-            imagepicker.setEnabled(true);
+            image_picker.setEnabled(true);
         } else {
             imageView.setEnabled(false);
-            imagepicker.setEnabled(false);
+            image_picker.setEnabled(false);
             requestPermissionLauncher.launch(
                     Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
@@ -237,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 _isGalleryOpen = true;
             }
         };
-        imagepicker.setOnClickListener(ip);
+        image_picker.setOnClickListener(ip);
         imageView.setOnClickListener(ip);
 
         //UI-Logic
@@ -329,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     Parameters_ShowHide(true);
                 }
-                ScaleSize = SCALESIZE;///(i>4?4:i);
+                ScaleSize = SCALE_SIZE;///(i>4?4:i);
                 if(_isDebug)Log.e("ScaleSaze","i:"+i+" ScaleSize:"+ScaleSize+" f:"+(i>2?i/2:i));
                 PixelRate = PIXEL*i;
                 t_pixelRate.setText(getText(R.string.p_r)+": "+i);
@@ -346,7 +344,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean isGooglePlayServicesAvailable(Activity activity) {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
-        if(status != ConnectionResult.SUCCESS) {
+        if(status != ConnectionResult.SUCCESS && status != ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
+            Log.e("GMS","status:"+status);
             if(googleApiAvailability.isUserResolvableError(status)) {
                 Objects.requireNonNull(googleApiAvailability.getErrorDialog(activity, status, 2404)).show();
             }
@@ -668,10 +667,10 @@ public class MainActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     imageView.setEnabled(true);
-                    imagepicker.setEnabled(true);
+                    image_picker.setEnabled(true);
                 } else {
                     imageView.setEnabled(false);
-                    imagepicker.setEnabled(false);
+                    image_picker.setEnabled(false);
                 }
             });
     //Calculate byte size bitmap to kb

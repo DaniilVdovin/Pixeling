@@ -36,7 +36,6 @@
                 android:contentDescription="@string/app_name"
                 android:elevation="10dp"
                 android:scaleType="centerCrop"
-                ads:srcCompat="@drawable/banner"
                 app:srcCompat="@drawable/icon" />
 
             <LinearLayout
