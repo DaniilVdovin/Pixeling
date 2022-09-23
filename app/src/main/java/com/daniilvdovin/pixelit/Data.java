@@ -1,7 +1,6 @@
 package com.daniilvdovin.pixelit;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -25,14 +24,14 @@ public class Data {
     //ML Segment detected
     public static boolean _isML_SegmentDetected = false;
     //System parameters
-    //Is GooglePlay
-    public static boolean _isGooglePlay = true;
-    //Is AppGallery
-    public static boolean _isAppGallery = false;
     //Scan color by pixels
     public static boolean _isScanColor = false;
     //Google Ads switch
     public static boolean _isGoogleAds = true;
+    //Google Play Services
+    public static boolean _isGooglePlayServices = false;
+    //Huawei AppGallery Ads
+    public static boolean _isAppGalleryAds = false;
     //Google Ads Debug Device
     public static boolean _isGoogleAds_DebugDevice =false;
     //Debug logs

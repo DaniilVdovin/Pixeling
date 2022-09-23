@@ -35,6 +35,7 @@ public class FaceDetect {
         detector = FaceDetection.getClient(options);
     }
     public static Bitmap getResult(Context context, Bitmap bitmap){
+        Activate();
         InputImage image = InputImage.fromBitmap(bitmap, 0);
         detector.process(image)
                         .addOnSuccessListener(

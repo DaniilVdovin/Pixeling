@@ -2,12 +2,12 @@ package com.daniilvdovin.pixelit;
 
 import static com.daniilvdovin.pixelit.Data.PixelRate;
 import static com.daniilvdovin.pixelit.Data.ScaleSize;
-import static com.daniilvdovin.pixelit.Data._isAppGallery;
+import static com.daniilvdovin.pixelit.Data._isAppGalleryAds;
 import static com.daniilvdovin.pixelit.Data._isDots;
 import static com.daniilvdovin.pixelit.Data._isFilter;
 import static com.daniilvdovin.pixelit.Data._isGalleryOpen;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
-import static com.daniilvdovin.pixelit.Data._isGooglePlay;
+import static com.daniilvdovin.pixelit.Data._isGooglePlayServices;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isML_FaceDetected;
@@ -23,7 +23,6 @@ import static com.daniilvdovin.pixelit.Data.imageUri;
 import static com.daniilvdovin.pixelit.Data.image_processed;
 import static com.daniilvdovin.pixelit.Data.image_name;
 import static com.daniilvdovin.pixelit.Data.processing;
-import static com.daniilvdovin.pixelit.ml.FaceDetect.getResult;
 import static com.daniilvdovin.pixelit.ml.FaceDetect.resultBitmap;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -67,25 +67,21 @@ import com.daniilvdovin.pixelit.colorize.PixelData;
 import com.daniilvdovin.pixelit.ml.FaceDetect;
 import com.daniilvdovin.pixelit.ml.SegmentMl;
 import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.admanager.AdManagerAdView;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.function.LongFunction;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: Editor
@@ -109,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     TextView t_pixelSize,t_imageSize,t_pixelRate;
 
     //Google ads frame
-    View AdFrame;
+    View GoogleAdFrame;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
         //Init system
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
-        FaceDetect.Activate();
+        _isGooglePlayServices = isGooglePlayServicesAvailable(MainActivity.this);
+        if(_isDebug) Log.e("GPS","GPS:"+_isGooglePlayServices);
 
         //Init UI
         imageView = findViewById(R.id.imageView);
@@ -137,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         t_imageSize = findViewById(R.id.t_ImageSize);
         t_pixelRate = findViewById(R.id.t_pixel_rate);
         progressBar = findViewById(R.id.progressBar);
-        AdFrame = findViewById(R.id.AdFrame);
+        GoogleAdFrame = findViewById(R.id.AdFrame);
         imagepicker.setVisibility(View.VISIBLE);
 
         //UI PreSetup
@@ -151,46 +148,45 @@ public class MainActivity extends AppCompatActivity {
             LoadProcessedImage();
         }
 
-        AdFrame.setVisibility(View.GONE);
+        GoogleAdFrame.setVisibility(View.GONE);
         //Google Ads
-        if(_isGooglePlay) {
-            if (_isGoogleAds) {
-                MobileAds.initialize(this, view -> {
-                    if (_isDebug) Log.e("ADS", "Ad Initialize");
-                });
-                if (_isGoogleAds_DebugDevice) {
-                    RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("70F94B3F952979B29EA2674BF7D27490")).build();
-                    MobileAds.setRequestConfiguration(configuration);
-                }
-                AdManagerAdView adView = findViewById(R.id.adManagerAdView);
-                AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
-                adView.loadAd(adRequest);
-                if (_isDebug && adRequest.isTestDevice(this)) Log.e("ADS", "Load On Test Devices");
-                adView.setAdListener(new AdListener() {
-                    @Override
-                    public void onAdClosed() {
-                        super.onAdClosed();
-                        if (_isDebug) Log.e("ADS", "Ad Closed");
-                        AdFrame.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        super.onAdFailedToLoad(loadAdError);
-                        if (_isDebug) Log.e("ADS", "Ad Failed To Load");
-                        AdFrame.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAdLoaded() {
-                        super.onAdLoaded();
-                        if (_isDebug) Log.e("ADS", "Ad Loaded");
-                        AdFrame.setVisibility(View.VISIBLE);
-                    }
-                });
+        if (_isGooglePlayServices && _isGoogleAds) {
+            if (_isDebug) Log.e("ADS","Google Ads Pre Load");
+            MobileAds.initialize(this, view -> {
+                if (_isDebug) Log.e("ADS", "Ad Initialize");
+            });
+            if (_isGoogleAds_DebugDevice) {
+                RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("70F94B3F952979B29EA2674BF7D27490")).build();
+                MobileAds.setRequestConfiguration(configuration);
             }
+            AdManagerAdView adView = findViewById(R.id.adManagerAdView);
+            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+            adView.loadAd(adRequest);
+            if (_isDebug && adRequest.isTestDevice(this)) Log.e("ADS", "Load On Test Devices");
+            adView.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    super.onAdClosed();
+                    if (_isDebug) Log.e("ADS", "Ad Closed");
+                    GoogleAdFrame.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    super.onAdFailedToLoad(loadAdError);
+                    if (_isDebug) Log.e("ADS", "Ad Failed To Load");
+                    GoogleAdFrame.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                    if (_isDebug) Log.e("ADS", "Ad Loaded");
+                    GoogleAdFrame.setVisibility(View.VISIBLE);
+                }
+            });
         }
-        if(_isAppGallery) {
+        if(!_isGooglePlayServices && _isAppGalleryAds) {
 
         }
         //Editor
@@ -314,6 +310,18 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
     }
+    //Google Play Services
+    public boolean isGooglePlayServicesAvailable(Activity activity) {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
+        if(status != ConnectionResult.SUCCESS) {
+            if(googleApiAvailability.isUserResolvableError(status)) {
+                Objects.requireNonNull(googleApiAvailability.getErrorDialog(activity, status, 2404)).show();
+            }
+            return false;
+        }
+        return true;
+    }
     //Off button if don't have loaded image
     void Parameters_ShowHide(boolean _is){
         reset.setEnabled(_is);
@@ -334,6 +342,10 @@ public class MainActivity extends AppCompatActivity {
             s_ml_face.setEnabled(false);
         }else{
             s_ml_face.setEnabled(_is);
+        }
+        if(!_isGooglePlayServices){
+            s_ml_face.setEnabled(false);
+            s_ml_face_invert.setEnabled(false);
         }
         s_filter.setEnabled(_is);
         sb_pixelRate.setEnabled(_is);
@@ -377,10 +389,12 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 loadBitmapFromIntent(data);
             }
-            FaceDetect.resultBitmap = null;
-            FaceDetect.getResult(this,image);
-            SegmentMl.resultBitmap = null;
-            SegmentMl.getResult(MainActivity.this, image);
+            if(_isGooglePlayServices) {
+                FaceDetect.resultBitmap = null;
+                FaceDetect.getResult(this, image);
+                SegmentMl.resultBitmap = null;
+                SegmentMl.getResult(MainActivity.this, image);
+            }
         }else {
             Toast.makeText(this,
                     R.string.dont_select_image,
