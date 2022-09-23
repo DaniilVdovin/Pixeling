@@ -345,13 +345,21 @@ public class MainActivity extends AppCompatActivity {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
         if(status != ConnectionResult.SUCCESS && status != ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
-            Log.e("GMS","status:"+status);
+            if(_isDebug) {
+                Log.e("GMS", "status:" + status);
+                Toast.makeText(this, "Status:" + status, Toast.LENGTH_LONG).show();
+            }
+            if(status == ConnectionResult.SERVICE_INVALID){
+                Toast.makeText(activity, "MicroG ^_^", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             if(googleApiAvailability.isUserResolvableError(status)) {
                 Objects.requireNonNull(googleApiAvailability.getErrorDialog(activity, status, 2404)).show();
             }
             return false;
         }
         return true;
+        //org.microg.gms
     }
     //Off button if don't have loaded image
     void Parameters_ShowHide(boolean _is){
