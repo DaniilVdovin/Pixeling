@@ -26,9 +26,9 @@ public class Data {
     public static boolean _isML_SegmentDetected = false;
     //System parameters
     //Is GooglePlay
-    public static boolean _isGooglePlay = false;
+    public static boolean _isGooglePlay = true;
     //Is AppGallery
-    public static boolean _isAppGallery = true;
+    public static boolean _isAppGallery = false;
     //Scan color by pixels
     public static boolean _isScanColor = false;
     //Google Ads switch
