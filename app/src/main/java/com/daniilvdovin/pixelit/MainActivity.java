@@ -359,7 +359,6 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         return true;
-        //org.microg.gms
     }
     //Off button if don't have loaded image
     void Parameters_ShowHide(boolean _is){
