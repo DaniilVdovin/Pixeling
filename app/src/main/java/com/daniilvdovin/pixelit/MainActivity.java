@@ -2,10 +2,12 @@ package com.daniilvdovin.pixelit;
 
 import static com.daniilvdovin.pixelit.Data.PixelRate;
 import static com.daniilvdovin.pixelit.Data.ScaleSize;
+import static com.daniilvdovin.pixelit.Data._isAppGallery;
 import static com.daniilvdovin.pixelit.Data._isDots;
 import static com.daniilvdovin.pixelit.Data._isFilter;
 import static com.daniilvdovin.pixelit.Data._isGalleryOpen;
 import static com.daniilvdovin.pixelit.Data._isGoogleAds_DebugDevice;
+import static com.daniilvdovin.pixelit.Data._isGooglePlay;
 import static com.daniilvdovin.pixelit.Data._isGray;
 import static com.daniilvdovin.pixelit.Data._isGrid;
 import static com.daniilvdovin.pixelit.Data._isML_FaceDetected;
@@ -137,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         AdFrame = findViewById(R.id.AdFrame);
         imagepicker.setVisibility(View.VISIBLE);
+
         //UI PreSetup
         if(image==null) {
             _isGalleryOpen = false;
@@ -147,42 +150,48 @@ public class MainActivity extends AppCompatActivity {
             imagepicker.setVisibility(View.GONE);
             LoadProcessedImage();
         }
+
         AdFrame.setVisibility(View.GONE);
         //Google Ads
-        if(_isGoogleAds) {
-            MobileAds.initialize(this, view->{
-                if(_isDebug)Log.e("ADS","Ad Initialize");
-            });
-            if(_isGoogleAds_DebugDevice){
-                RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("70F94B3F952979B29EA2674BF7D27490")).build();
-                MobileAds.setRequestConfiguration(configuration);
+        if(_isGooglePlay) {
+            if (_isGoogleAds) {
+                MobileAds.initialize(this, view -> {
+                    if (_isDebug) Log.e("ADS", "Ad Initialize");
+                });
+                if (_isGoogleAds_DebugDevice) {
+                    RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("70F94B3F952979B29EA2674BF7D27490")).build();
+                    MobileAds.setRequestConfiguration(configuration);
+                }
+                AdManagerAdView adView = findViewById(R.id.adManagerAdView);
+                AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
+                adView.loadAd(adRequest);
+                if (_isDebug && adRequest.isTestDevice(this)) Log.e("ADS", "Load On Test Devices");
+                adView.setAdListener(new AdListener() {
+                    @Override
+                    public void onAdClosed() {
+                        super.onAdClosed();
+                        if (_isDebug) Log.e("ADS", "Ad Closed");
+                        AdFrame.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        super.onAdFailedToLoad(loadAdError);
+                        if (_isDebug) Log.e("ADS", "Ad Failed To Load");
+                        AdFrame.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        if (_isDebug) Log.e("ADS", "Ad Loaded");
+                        AdFrame.setVisibility(View.VISIBLE);
+                    }
+                });
             }
-            AdManagerAdView adView = findViewById(R.id.adManagerAdView);
-            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
-            adView.loadAd(adRequest);
-            if(_isDebug && adRequest.isTestDevice(this))Log.e("ADS","Load On Test Devices");
-            adView.setAdListener(new AdListener() {
-                @Override
-                public void onAdClosed() {
-                    super.onAdClosed();
-                    if(_isDebug)Log.e("ADS","Ad Closed");
-                    AdFrame.setVisibility(View.GONE);
-                }
+        }
+        if(_isAppGallery) {
 
-                @Override
-                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                    super.onAdFailedToLoad(loadAdError);
-                    if(_isDebug)Log.e("ADS","Ad Failed To Load");
-                    AdFrame.setVisibility(View.GONE);
-                }
-
-                @Override
-                public void onAdLoaded() {
-                    super.onAdLoaded();
-                    if(_isDebug)Log.e("ADS","Ad Loaded");
-                    AdFrame.setVisibility(View.VISIBLE);
-                }
-            });
         }
         //Editor
         reset.setVisibility(_isScanColor?View.VISIBLE:View.GONE);

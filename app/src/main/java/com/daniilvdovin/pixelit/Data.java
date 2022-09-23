@@ -25,6 +25,10 @@ public class Data {
     //ML Segment detected
     public static boolean _isML_SegmentDetected = false;
     //System parameters
+    //Is GooglePlay
+    public static boolean _isGooglePlay = false;
+    //Is AppGallery
+    public static boolean _isAppGallery = true;
     //Scan color by pixels
     public static boolean _isScanColor = false;
     //Google Ads switch
