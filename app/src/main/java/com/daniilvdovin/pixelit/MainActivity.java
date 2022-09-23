@@ -35,6 +35,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -90,11 +91,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT_CROP_IMG = 2;
     private static final int SCALESIZE = 60;//50
     private static final int PIXEL = 8;
+    private static final String SHARED_PREFERENCES_NAME = "Setup";
+    private static final String FIRST_START = "First_Start";
     int ResultSize = 0;
 
     //UI
     ImageView imageView;
-    Button reset,save,imagepicker,share;
+    Button reset,save,imagepicker,share,inst_confirm;
     ProgressBar progressBar;
     //UI-Parameters
     @SuppressLint("UseSwitchCompatOrMaterialCode")
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     TextView t_pixelSize,t_imageSize,t_pixelRate;
 
     //Google ads frame
-    View GoogleAdFrame;
+    View GoogleAdFrame,MainFrame,ToolFrame,InstructionCard;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,13 +119,21 @@ public class MainActivity extends AppCompatActivity {
         photoPickerIntent.setType("image/*");
         _isGooglePlayServices = isGooglePlayServicesAvailable(MainActivity.this);
         if(_isDebug) Log.e("GPS","GPS:"+_isGooglePlayServices);
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME,MODE_PRIVATE);
+        boolean _isFirstStart = sharedPreferences.getBoolean(FIRST_START,true);
 
         //Init UI
+        //Image View Processing
         imageView = findViewById(R.id.imageView);
+        //Buttons Tool frame
         reset = findViewById(R.id.b_reset);
         save = findViewById(R.id.b_save);
         share = findViewById(R.id.b_share);
+        //Buttons Instruction Frame
+        inst_confirm = findViewById(R.id.Instruction_complite);
+        //Image Picker Button
         imagepicker = findViewById(R.id.b_imagepick);
+        //Controllers
         s_gray = findViewById(R.id.s_gray);
         s_grid = findViewById(R.id.s_grid);
         s_dot = findViewById(R.id.s_dot);
@@ -130,14 +141,27 @@ public class MainActivity extends AppCompatActivity {
         s_ml_face = findViewById(R.id.s_ml_face_detector);
         s_ml_face_invert = findViewById(R.id.s_ml_face_detector_invert);
         sb_pixelRate = findViewById(R.id.sb_pixelRate);
+        //Text
         t_pixelSize = findViewById(R.id.t_pixelSize);
         t_imageSize = findViewById(R.id.t_ImageSize);
         t_pixelRate = findViewById(R.id.t_pixel_rate);
+        //Progress Bar
         progressBar = findViewById(R.id.progressBar);
+        //ADS
         GoogleAdFrame = findViewById(R.id.AdFrame);
-        imagepicker.setVisibility(View.VISIBLE);
+        //Frames
+        MainFrame = findViewById(R.id.MainFrame);
+        ToolFrame = findViewById(R.id.ToolFrame);
+        InstructionCard = findViewById(R.id.Instruction_card);
 
         //UI PreSetup
+        imagepicker.setVisibility(View.VISIBLE);
+        if(_isFirstStart){
+            MainFrame.setVisibility(View.GONE);
+            ToolFrame.setVisibility(View.GONE);
+        }else{
+            InstructionCard.setVisibility(View.GONE);
+        }
         if(image==null) {
             _isGalleryOpen = false;
             imagepicker.setEnabled(false);
@@ -218,6 +242,14 @@ public class MainActivity extends AppCompatActivity {
 
         //UI-Logic
         //UI-Logic-Button
+        inst_confirm.setOnClickListener(view -> {
+            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(FIRST_START,false);
+            editor.apply();
+            MainFrame.setVisibility(View.VISIBLE);
+            ToolFrame.setVisibility(View.VISIBLE);
+            InstructionCard.setVisibility(View.GONE);
+        });
         reset.setOnClickListener(view -> {
             startActivity(new Intent(MainActivity.this, ColorizeActivity.class));
         });
