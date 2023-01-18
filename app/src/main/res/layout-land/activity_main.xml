@@ -192,7 +192,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     ads:adSize="FULL_BANNER"
-                    ads:adUnitId="ca-app-pub-3688869810838809/9160148766" />
+                    ads:adUnitId="----" />
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
