@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 if (_isDebug) Log.e("ADS", "Ad Initialize");
             });
             if (_isGoogleAds_DebugDevice) {
-                RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("70F94B3F952979B29EA2674BF7D27490")).build();
+                RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("---")).build();
                 MobileAds.setRequestConfiguration(configuration);
             }
             AdManagerAdView adView = findViewById(R.id.adManagerAdView);
