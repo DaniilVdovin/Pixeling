@@ -20,6 +20,13 @@ All other applications are available in full!
 
 The weight of the image when saving may differ from the weight used in the application interface.
 
+### Screen
+<div align="center">
+
+<img src="/Images/mocap screen v2/Монтажная область 4.png" height="400">
+
+</div>
+
 Quick launch function:
 
     -Select the image of the clicked click the "Select image" button
