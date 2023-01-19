@@ -32,7 +32,14 @@ Quick launch function:
     -Select the image of the clicked click the "Select image" button
     -Set the filters you are interested in (parameters in the part of the screen)
     -Save the image to the gallery.
-    
+
+### Responsive layout
+<div align="center">
+
+<img src="https://user-images.githubusercontent.com/45402557/213541449-265d06dd-e238-429f-a3dc-6d3f03cfd3f3.png" height="530">
+
+</div>
+
 ### Warning!
 The developer does not take responsibility for the images that are processed in the lower part of the system.
 
