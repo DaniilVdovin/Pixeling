@@ -38,9 +38,9 @@ The developer does not take responsibility for the images that are processed in 
 
 <div align="center">
 
- Android | AppGallery |
-|:-:|:-:|
-| [<img src="/Images/google-play-badge.png" height="50">](https://play.google.com/store/apps/details?id=com.daniilvdovin.pixelit) | [<img src="/Images/AppGallery_bage.png" height="50">](https://urldrru.cloud.huawei.ru/iDZL4T0Ixy) 
+ Android | AppGallery | RuStore |
+|:-:|:-:|:-:|
+| [<img src="/Images/google-play-badge.png" height="50">](https://play.google.com/store/apps/details?id=com.daniilvdovin.pixelit) | [<img src="/Images/AppGallery_bage.png" height="50">](https://urldrru.cloud.huawei.ru/iDZL4T0Ixy) | [<img src="/Images/RuStore.svg" height="50">](https://apps.rustore.ru/app/com.daniilvdovin.pixelit) 
 
 </div>
 
