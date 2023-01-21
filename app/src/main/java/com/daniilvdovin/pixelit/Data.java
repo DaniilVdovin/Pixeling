@@ -28,6 +28,8 @@ public class Data {
     public static boolean _isScanColor = false;
     //Google Ads switch
     public static boolean _isGoogleAds = true;
+    //Mail Ads switch
+    public static boolean _MyTargetAds = true;
     //Google Play Services
     public static boolean _isGooglePlayServices = false;
     //Huawei AppGallery Ads

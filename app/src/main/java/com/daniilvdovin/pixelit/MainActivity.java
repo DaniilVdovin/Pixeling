@@ -2,6 +2,7 @@ package com.daniilvdovin.pixelit;
 
 import static com.daniilvdovin.pixelit.Data.PixelRate;
 import static com.daniilvdovin.pixelit.Data.ScaleSize;
+import static com.daniilvdovin.pixelit.Data._MyTargetAds;
 import static com.daniilvdovin.pixelit.Data._isAppGalleryAds;
 import static com.daniilvdovin.pixelit.Data._isDots;
 import static com.daniilvdovin.pixelit.Data._isFilter;
@@ -67,14 +68,11 @@ import com.daniilvdovin.pixelit.colorize.ColorizeActivity;
 import com.daniilvdovin.pixelit.colorize.PixelData;
 import com.daniilvdovin.pixelit.ml.FaceDetect;
 import com.daniilvdovin.pixelit.ml.SegmentMl;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.admanager.AdManagerAdRequest;
-import com.google.android.gms.ads.admanager.AdManagerAdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.my.target.ads.MyTargetView;
+import com.my.target.common.MyTargetConfig;
+import com.my.target.common.MyTargetManager;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -106,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
     TextView t_pixelSize,t_imageSize,t_pixelRate;
 
     //Google ads frame
-    View GoogleAdFrame,MainFrame,ToolFrame,InstructionCard;
+    View GoogleAdFrame
+            ,MainFrame,ToolFrame,InstructionCard;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,46 +168,39 @@ public class MainActivity extends AppCompatActivity {
             image_picker.setVisibility(View.GONE);
             LoadProcessedImage();
         }
-
         GoogleAdFrame.setVisibility(View.GONE);
-        //Google Ads
-        if (_isGooglePlayServices && _isGoogleAds) {
-            if (_isDebug) Log.e("ADS","Google Ads Pre Load");
-            MobileAds.initialize(this, view -> {
-                if (_isDebug) Log.e("ADS", "Ad Initialize");
-            });
-            if (_isGoogleAds_DebugDevice) {
-                RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("---")).build();
-                MobileAds.setRequestConfiguration(configuration);
-            }
-            AdManagerAdView adView = findViewById(R.id.adManagerAdView);
-            AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
-            adView.loadAd(adRequest);
-            if (_isDebug && adRequest.isTestDevice(this)) Log.e("ADS", "Load On Test Devices");
-            adView.setAdListener(new AdListener() {
+        if(_MyTargetAds){
+            MyTargetView adView = findViewById(R.id.adManagerAdView);
+            adView.setSlotId(1189445);
+            adView.setRefreshAd(true);
+            adView.setListener(new MyTargetView.MyTargetViewListener() {
                 @Override
-                public void onAdClosed() {
-                    super.onAdClosed();
+                public void onLoad(@NonNull MyTargetView myTargetView) {
+                    if (_isDebug) Log.e("ADS", "Ad Loaded");
+                    GoogleAdFrame.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onNoAd(@NonNull String s, @NonNull MyTargetView myTargetView) {
                     if (_isDebug) Log.e("ADS", "Ad Closed");
                     GoogleAdFrame.setVisibility(View.GONE);
                 }
 
                 @Override
-                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                    super.onAdFailedToLoad(loadAdError);
-                    if (_isDebug) Log.e("ADS", "Ad Failed To Load");
-                    GoogleAdFrame.setVisibility(View.GONE);
+                public void onShow(@NonNull MyTargetView myTargetView) {
+
                 }
 
                 @Override
-                public void onAdLoaded() {
-                    super.onAdLoaded();
-                    if (_isDebug) Log.e("ADS", "Ad Loaded");
-                    GoogleAdFrame.setVisibility(View.VISIBLE);
+                public void onClick(@NonNull MyTargetView myTargetView) {
+
                 }
             });
+            adView.load();
         }
-        if(!_isGooglePlayServices && _isAppGalleryAds) {
+        //Google Ads
+        if (_isGooglePlayServices && _isGoogleAds) {
+            if (_isDebug) Log.e("ADS","Ads Pre Load");
 
         }
         //Editor
