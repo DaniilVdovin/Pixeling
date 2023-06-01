@@ -31,7 +31,7 @@ Quick launch function:
 
     -Select the image of the clicked click the "Select image" button
     -Set the filters you are interested in (parameters in the part of the screen)
-    -Save the image to the gallery.
+    -Save the image to gallery.
 
 ### Responsive layout
 <div align="center">
