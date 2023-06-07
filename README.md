@@ -1,6 +1,7 @@
+<div align="center">
+
 # Pixelate It
 
-<div align="center">
 <img src="/Images/Монтажная область 2.png" height="300">
 </div>
 
